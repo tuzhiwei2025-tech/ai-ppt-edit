@@ -2,7 +2,7 @@
 
 > 视角:产品工程师 + 极简 + 长期主义。先想清楚"为谁、凭什么",再谈渠道和节奏。不追投放,靠产品力和真诚输出滚雪球。
 
-本文档是 HTML Deck Studio 的 GTM(Go-To-Market)思路,服务于一个目标:**让真正被"AI 出 HTML 演示稿、却难改难导"折磨的人找到它,并且用一次就留下来。**
+本文档是 AI PPT Edit 的 GTM(Go-To-Market)思路,服务于一个目标:**让真正被"AI 出 HTML 演示稿、却难改难导"折磨的人找到它,并且用一次就留下来。**
 
 ---
 
@@ -23,7 +23,7 @@ quadrantChart
   Canva: [0.25, 0.7]
   Slidev reveal: [0.45, 0.35]
   PowerPoint Keynote: [0.55, 0.2]
-  HTML Deck Studio: [0.82, 0.85]
+  AI PPT Edit: [0.82, 0.85]
 ```
 
 **楔子很窄,故意的:** 只吃"你已经有一份 HTML deck,怎么改、怎么导"这一刀。

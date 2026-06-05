@@ -18,7 +18,7 @@ export async function buildPptx(
 
   const pptx = new pptxgen();
   pptx.title = title;
-  pptx.subject = 'HTML Deck Studio export';
+  pptx.subject = 'AI PPT Edit export';
 
   // Slide dimensions in inches (96 dpi assumed; Widescreen 13.33×7.5 in = 1280×720@96dpi)
   const widthIn = (viewportWidth / 96).toFixed(4);

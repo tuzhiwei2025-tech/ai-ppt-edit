@@ -1,19 +1,19 @@
 import type zh from '../zh/common.js';
 
 const common: typeof zh = {
-  brand: 'NextPPT',
+  brand: 'AI PPT Edit',
   tagline: 'The next-gen deck, born from HTML',
   seo: {
-    ogSiteName: 'NextPPT',
+    ogSiteName: 'AI PPT Edit',
     home: {
-      title: 'NextPPT — The next-gen deck, born from HTML',
+      title: 'AI PPT Edit — The next-gen deck, born from HTML',
       description:
-        'NextPPT turns AI-written HTML slides into a click-to-edit deck you can export to PPTX / PDF in one click. No login, fully local.',
+        'AI PPT Edit turns AI-written HTML slides into a click-to-edit deck you can export to PPTX / PDF in one click. No login, fully local.',
     },
     guide: {
-      title: 'Guide · NextPPT — The next-gen deck, born from HTML',
+      title: 'Guide · AI PPT Edit — The next-gen deck, born from HTML',
       description:
-        'NextPPT guide: no deck yet? Generate one with a prompt. Then click to change text and images, move things around, and export a projector-ready PPT / PDF in one click. Fully local.',
+        'AI PPT Edit guide: no deck yet? Generate one with a prompt. Then click to change text and images, move things around, and export a projector-ready PPT / PDF in one click. Fully local.',
     },
   },
   language: {

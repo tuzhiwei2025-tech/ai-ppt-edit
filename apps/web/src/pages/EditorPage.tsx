@@ -10,7 +10,7 @@ import { CodeEditorPane } from '../components/CodeEditorPane.js';
 import { ExportDrawer } from '../components/ExportDrawer.js';
 import { ConfirmDialog } from '../components/ConfirmDialog.js';
 import { HistoryDrawer } from '../components/HistoryDrawer.js';
-import type { PatchOp, RuntimeMessage } from '@hds/protocol';
+import type { PatchOp, RuntimeMessage } from '@ai-ppt-edit/protocol';
 import { writeDeck, rebuildDeckHtmlForExport, writeAsset, saveAsNewFile, writeFileHandle, parseDeck } from '../fs/adapter.js';
 import type { HistoryCtx } from '../fs/history.js';
 import { recordSnapshot, listSnapshots } from '../fs/history.js';
@@ -490,7 +490,7 @@ export function EditorPage() {
           aria-label={t('page.backHome')}
           title={t('page.backHome')}
         >
-          <img src="/icon-192.png" alt="NextPPT" className="w-full h-full" />
+          <img src="/icon-192.png" alt="AI PPT Edit" className="w-full h-full" />
         </button>
         <span className="w-px h-4 bg-white/15 shrink-0" />
         <button

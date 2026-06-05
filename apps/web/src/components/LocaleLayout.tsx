@@ -3,7 +3,7 @@ import { Head } from 'vite-react-ssg';
 import { I18nextProvider } from 'react-i18next';
 import { getI18n, localePrefix, type Locale } from '../i18n/index.js';
 
-const SITE = 'https://next-ppt.com';
+const SITE = 'https://ai-ppt-edit.com';
 
 type Page = 'home' | 'guide';
 

@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="apps/web/public/logo-mark.svg" alt="NextPPT" width="84" height="84" />
+<img src="apps/web/public/logo-mark.svg" alt="AI PPT Edit" width="84" height="84" />
 
-# NextPPT
+# AI PPT Edit
 
 **下一代 PPT，从 HTML 开始 —— 把 AI 产出的 HTML 演示稿，在浏览器里点哪改哪，一键导出工业级 PPTX / PDF。**
 
@@ -15,10 +15,10 @@
 
 </div>
 
-> 你的 AI 工具已经能写出很漂亮的 `deck.html`，NextPPT 补的是最后一公里：改一个字不用重开一轮对话，像 PPT 一样拖图层，本地导出能投影的幻灯片。
+> 你的 AI 工具已经能写出很漂亮的 `deck.html`，AI PPT Edit 补的是最后一公里：改一个字不用重开一轮对话，像 PPT 一样拖图层，本地导出能投影的幻灯片。
 
 <div align="center">
-  <img src="docs/assets/demo.gif" alt="NextPPT 演示" width="760" />
+  <img src="docs/assets/demo.gif" alt="AI PPT Edit 演示" width="760" />
   <br />
   <sub>演示占位 · 把 <code>demo.gif</code> 放到 <code>docs/assets/</code> 即可</sub>
 </div>
@@ -33,7 +33,7 @@
 - **投影还是要 PPT/PDF。** 学校要 `.pptx`，客户要 `.pdf`，HTML 直接上投影仪很容易掉字体、卡网络。
 - **隐私是真的焦虑。** 答辩稿、客户方案、内部资料，大家都不太敢传到在线编辑器。
 
-**NextPPT** 只把一件事做好：拿你已经有的 HTML，在浏览器里点哪改哪，再导出高保真 PPT/PDF —— **文件全程不离开你本机。**
+**AI PPT Edit** 只把一件事做好：拿你已经有的 HTML，在浏览器里点哪改哪，再导出高保真 PPT/PDF —— **文件全程不离开你本机。**
 
 它不是 AI 生成 PPT，不是 reveal.js / Slidev 那种要重学语法的工具，也不是云端编辑器。它就是一把专门修剪 AI 演示稿的剪刀。
 

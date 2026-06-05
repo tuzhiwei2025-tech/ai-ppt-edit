@@ -24,7 +24,7 @@ export function SiteHeader() {
           aria-label={t('nav.homeAria')}
         >
           <img src="/brand-n.png" alt="" className="hds-emblem w-7 h-7" />
-          <span className="hds-wordmark text-sm">NextPPT</span>
+          <span className="hds-wordmark text-sm">AI PPT Edit</span>
         </button>
 
         <div className="ml-auto flex items-center gap-4 sm:gap-5">

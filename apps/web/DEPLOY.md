@@ -6,7 +6,7 @@ Always deploy the **Vite build folder**, not the source tree:
 
 | Setting | Value |
 | --- | --- |
-| **Build command** | `pnpm install && pnpm --filter @hds/web build` |
+| **Build command** | `pnpm install && pnpm --filter @ai-ppt-edit/web build` |
 | **Output directory** | `apps/web/dist` |
 | **Node** | 20+ |
 

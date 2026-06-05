@@ -10,7 +10,7 @@
  * Communicates with AppHost via postMessage.
  */
 
-import type { HostMessage, RuntimeMessage, PatchOp, StyleSnapshot, LayerInfo, SlideRect } from '@hds/protocol';
+import type { HostMessage, RuntimeMessage, PatchOp, StyleSnapshot, LayerInfo, SlideRect } from '@ai-ppt-edit/protocol';
 
 const TARGET = window.parent as Window;
 

@@ -1,4 +1,4 @@
-# HTML Deck Studio · 产品需求文档（PRD）
+# AI PPT Edit · 产品需求文档（PRD）
 
 | 字段 | 内容 |
 | --- | --- |
@@ -43,7 +43,7 @@
 
 ### 2.1 一句话定位
 
-> HTML Deck Studio 是一把专门修剪 AI 演示稿的剪刀：让 AI 产的 `deck.html` 在网页里点哪改哪，一键导出工业级 PPT / PDF。
+> AI PPT Edit 是一把专门修剪 AI 演示稿的剪刀：让 AI 产的 `deck.html` 在网页里点哪改哪，一键导出工业级 PPT / PDF。
 
 ### 2.2 价值主张
 
@@ -127,7 +127,7 @@
 
 ### 4.2 竞品矩阵
 
-| 维度 | HTML Deck Studio | Slidev | Marp | Gamma | Canva | PowerPoint Web |
+| 维度 | AI PPT Edit | Slidev | Marp | Gamma | Canva | PowerPoint Web |
 | --- | --- | --- | --- | --- | --- | --- |
 | 接受任意 HTML | ✅ | ❌（Vue DSL） | ❌（Markdown） | ❌（自家 schema） | ❌ | ❌ |
 | 浏览器所见即所得 | ✅ | ❌（命令行） | ❌ | ✅ | ✅ | ✅ |

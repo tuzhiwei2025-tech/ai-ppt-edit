@@ -16,7 +16,7 @@ export function EditorPreview() {
           <span className="hds-preview-dot" style={{ background: '#ff5f57' }} />
           <span className="hds-preview-dot" style={{ background: '#febc2e' }} />
           <span className="hds-preview-dot" style={{ background: '#28c840' }} />
-          <span className="ml-3 text-[11px] text-[var(--tertiary-label)] truncate">product-launch.html — NextPPT</span>
+          <span className="ml-3 text-[11px] text-[var(--tertiary-label)] truncate">product-launch.html — AI PPT Edit</span>
           <span className="ml-auto text-[10px] text-[var(--tertiary-label)] font-mono">1280 × 720</span>
         </div>
 

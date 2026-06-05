@@ -3,7 +3,7 @@ import type zh from '../zh/guide.js';
 const guide: typeof zh = {
   header: {
     back: 'Back',
-    backHome: 'Back to NextPPT',
+    backHome: 'Back to AI PPT Edit',
     title: 'Guide',
     backToEdit: 'Back to editor',
   },
@@ -65,7 +65,7 @@ const guide: typeof zh = {
     openFile: 'Open a file',
   },
   footer: {
-    backHome: '← Back to NextPPT',
+    backHome: '← Back to AI PPT Edit',
     local: 'Local-first · files stay on your computer',
   },
 };

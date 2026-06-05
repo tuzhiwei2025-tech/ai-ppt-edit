@@ -1,6 +1,6 @@
 export default {
   nav: {
-    homeAria: 'NextPPT 首页',
+    homeAria: 'AI PPT Edit 首页',
     guide: '使用指南',
     openFile: '打开文件',
   },
@@ -18,7 +18,7 @@ export default {
     support: '支持文件夹（可读写配套图片）或单个自包含 HTML · 需 Chromium 内核浏览器',
   },
   value: {
-    eyebrow: '为什么需要 NextPPT',
+    eyebrow: '为什么需要 AI PPT Edit',
     titleA: 'AI 能生成，却',
     titleAccent: '改不动',
     subtitle: '那最后一步，交给我们。',
@@ -28,7 +28,7 @@ export default {
       '可一旦想改个字体、调个配色、换句文案，又得回到对话里重新描述，token 哗哗地烧，还要来回等待。',
     ],
     solution:
-      '<brand>NextPPT</brand> 让你把这份 HTML 直接拖进来，在页面上点选就能改字体、配色和内容——所见即所得，<em>不再为改一个字重开一轮 AI 对话</em>。',
+      '<brand>AI PPT Edit</brand> 让你把这份 HTML 直接拖进来，在页面上点选就能改字体、配色和内容——所见即所得，<em>不再为改一个字重开一轮 AI 对话</em>。',
   },
   hub: {
     unsupportedTitle: '当前浏览器不支持本地文件读写',
@@ -65,6 +65,6 @@ export default {
     colAbout: '关于',
     localFirst: '本地优先',
     noLogin: '无需登录',
-    copy: '© {{year}} NextPPT',
+    copy: '© {{year}} AI PPT Edit',
   },
 };

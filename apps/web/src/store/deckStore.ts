@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { DeckMeta, SlideEntry } from '@hds/protocol';
-import type { StyleSnapshot, LayerInfo, SlideRect } from '@hds/protocol';
+import type { DeckMeta, SlideEntry } from '@ai-ppt-edit/protocol';
+import type { StyleSnapshot, LayerInfo, SlideRect } from '@ai-ppt-edit/protocol';
 import { ulid } from '../lib/ulid.js';
 
 export interface SlideState extends SlideEntry {

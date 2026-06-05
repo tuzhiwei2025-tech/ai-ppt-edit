@@ -1,4 +1,4 @@
-# HTML Deck Studio · 设计文档
+# AI PPT Edit · 设计文档
 
 > 把 AI 产出的 HTML 演示稿，变成网页里点哪改哪的可视化制品，一键导出工业级 PPT / PDF。
 
@@ -15,7 +15,7 @@
 
 ## 一句话产品定位
 
-**HTML Deck Studio** 是一个纯 Web 工具站：用户在自己的 AI 工具（Cursor / Claude / ChatGPT / Codex 等）中生成 HTML 演示稿，拖入本工具后即可在浏览器内点选元素、所见即所得地微调文字与图片，再一键导出图片型 PPTX / PDF。
+**AI PPT Edit** 是一个纯 Web 工具站：用户在自己的 AI 工具（Cursor / Claude / ChatGPT / Codex 等）中生成 HTML 演示稿，拖入本工具后即可在浏览器内点选元素、所见即所得地微调文字与图片，再一键导出图片型 PPTX / PDF。
 
 > 上游不管 HTML 是怎么来的，下游一定能给出可投影的 PPT/PDF。
 

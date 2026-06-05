@@ -1,6 +1,6 @@
 {
-  "name": "NextPPT",
-  "short_name": "NextPPT",
+  "name": "AI PPT Edit",
+  "short_name": "AI PPT Edit",
   "description": "下一代 PPT，从 HTML 开始",
   "start_url": "/",
   "display": "standalone",

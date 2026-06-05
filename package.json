@@ -1,15 +1,15 @@
 {
-  "name": "html-deck-studio",
+  "name": "ai-ppt-edit",
   "private": true,
   "version": "0.1.0",
-  "description": "HTML Deck Studio monorepo – trim AI-generated HTML decks, export pixel-perfect PPTX/PDF",
+  "description": "AI PPT Edit monorepo – trim AI-generated HTML decks, export pixel-perfect PPTX/PDF",
   "engines": {
     "node": ">=20",
     "pnpm": ">=10"
   },
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail --prefix-colors \"bgBlue.bold,bgGreen.bold\" --names \"API,WEB\" \"pnpm --filter @hds/api dev\" \"pnpm --filter @hds/web dev\"",
-    "build": "pnpm --filter '@hds/protocol' build && pnpm --parallel --filter './apps/*' build",
+    "dev": "concurrently --kill-others-on-fail --prefix-colors \"bgBlue.bold,bgGreen.bold\" --names \"API,WEB\" \"pnpm --filter @ai-ppt-edit/api dev\" \"pnpm --filter @ai-ppt-edit/web dev\"",
+    "build": "pnpm --filter '@ai-ppt-edit/protocol' build && pnpm --parallel --filter './apps/*' build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test"

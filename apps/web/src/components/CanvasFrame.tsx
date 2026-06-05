@@ -3,7 +3,7 @@
  * Communicates with editor-runtime via postMessage.
  */
 import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
-import type { HostMessage, RuntimeMessage } from '@hds/protocol';
+import type { HostMessage, RuntimeMessage } from '@ai-ppt-edit/protocol';
 import RUNTIME_SOURCE from 'virtual:editor-runtime';
 import { useDeckStore } from '../store/deckStore.js';
 

@@ -114,7 +114,7 @@ export function GuidePage() {
             </button>
             <button onClick={closeGuide} className="flex items-center gap-2 group transition-opacity hover:opacity-80" title={t('header.backHome')}>
               <img src="/brand-n.png" alt="" className="hds-emblem w-6 h-6" />
-              <span className="text-sm font-bold tracking-tight text-[var(--label)]">NextPPT</span>
+              <span className="text-sm font-bold tracking-tight text-[var(--label)]">AI PPT Edit</span>
             </button>
             <span className="hidden sm:inline text-[var(--tertiary-label)]">·</span>
             <h1 className="hidden sm:block text-sm font-medium text-[var(--secondary-label)]">{t('header.title')}</h1>

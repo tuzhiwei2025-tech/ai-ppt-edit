@@ -1,5 +1,5 @@
 {
-  "name": "@hds/api",
+  "name": "@ai-ppt-edit/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
   "dependencies": {
     "@fastify/cors": "^10.0.2",
     "@fastify/multipart": "^9.0.3",
-    "@hds/protocol": "workspace:*",
+    "@ai-ppt-edit/protocol": "workspace:*",
     "fastify": "^5.3.2",
     "pdf-lib": "^1.17.1",
     "pptxgenjs": "^3.12.0",

@@ -154,7 +154,7 @@ export function LandingPage() {
                 <span className="block text-[#7e14ff] dark:text-[#a855ff]">而是整理 <span className="sm:whitespace-nowrap">AI 模板生态。</span></span>
               </h1>
               <p className="np-hero-copy mt-6 max-w-2xl text-base leading-8 text-[#4e5357] dark:text-[#b7bbc1]">
-                NextPPT 现在专注 AI 生成的 HTML 演示稿：点选编辑、拖拽版式、导出 PPTX/PDF。后续会把 DOCX 转 HTML 的在线编辑也拆成独立模块接入同一个开源工作台。
+                AI PPT Edit 现在专注 AI 生成的 HTML 演示稿：点选编辑、拖拽版式、导出 PPTX/PDF。后续会把 DOCX 转 HTML 的在线编辑也拆成独立模块接入同一个开源工作台。
               </p>
 
               {error && (
@@ -308,7 +308,7 @@ export function LandingPage() {
           <AnimatedFooter
             leftLinks={footerLeftLinks}
             rightLinks={footerRightLinks}
-            copyrightText="2026 NextPPT · Open-source AI deck editor"
+            copyrightText="2026 AI PPT Edit · Open-source AI deck editor"
             barCount={18}
           />
         </div>

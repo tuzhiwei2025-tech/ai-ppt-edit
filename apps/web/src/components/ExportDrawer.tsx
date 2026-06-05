@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ExportFormat, ExportResolution, ExportPageRange } from '@hds/protocol';
+import type { ExportFormat, ExportResolution, ExportPageRange } from '@ai-ppt-edit/protocol';
 import { useDeckStore } from '../store/deckStore.js';
 import { rebuildDeckHtmlForExport } from '../fs/adapter.js';
 import { getBlobToPathMap } from '../fs/assetResolver.js';
@@ -8,7 +8,7 @@ import { PrismFluxLoader } from './ui/prism-flux-loader.js';
 
 /**
  * Base URL of the export API. Empty in dev (Vite proxies /v1 to localhost:3000);
- * in production set VITE_API_BASE to e.g. https://api.next-ppt.com at build time.
+ * in production set VITE_API_BASE to e.g. https://api.ai-ppt-edit.com at build time.
  */
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 

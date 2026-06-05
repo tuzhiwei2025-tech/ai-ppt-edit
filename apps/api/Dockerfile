@@ -37,11 +37,11 @@ COPY packages/protocol/package.json packages/protocol/
 RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the source. The API runs straight from TS via tsx, and
-# @hds/protocol is consumed as TS source, so no build step is needed.
+# @ai-ppt-edit/protocol is consumed as TS source, so no build step is needed.
 COPY . .
 
 ENV PORT=3000 \
     HOST=0.0.0.0
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@hds/api", "exec", "tsx", "src/server.ts"]
+CMD ["pnpm", "--filter", "@ai-ppt-edit/api", "exec", "tsx", "src/server.ts"]

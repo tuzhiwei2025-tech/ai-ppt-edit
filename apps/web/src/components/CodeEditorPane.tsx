@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import Editor from '@monaco-editor/react';
-import { SLIDE_SELECTOR } from '@hds/protocol';
+import { SLIDE_SELECTOR } from '@ai-ppt-edit/protocol';
 import { useDeckStore } from '../store/deckStore.js';
 
 /**

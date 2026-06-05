@@ -61,7 +61,7 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
         }}
       >
         {/* Cube Faces */}
-        {statuses.slice(0, 6).map((text, i) => {
+        {statuses.slice(0, 6).map((_, i) => {
           const faceTransforms = [
             `rotateY(0deg) translateZ(${half}px)`,   // front
             `rotateY(180deg) translateZ(${half}px)`, // back
@@ -70,8 +70,6 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
             `rotateX(90deg) translateZ(${half}px)`,  // top
             `rotateX(-90deg) translateZ(${half}px)`, // bottom
           ];
-
-          const borderHue = i * 60;
 
           return (
             <div

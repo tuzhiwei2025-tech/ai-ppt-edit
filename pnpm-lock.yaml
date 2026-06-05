@@ -17,15 +17,15 @@ importers:
 
   apps/api:
     dependencies:
+      '@ai-ppt-edit/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
       '@fastify/cors':
         specifier: ^10.0.2
         version: 10.1.0
       '@fastify/multipart':
         specifier: ^9.0.3
         version: 9.4.0
-      '@hds/protocol':
-        specifier: workspace:*
-        version: link:../../packages/protocol
       fastify:
         specifier: ^5.3.2
         version: 5.8.5
@@ -57,12 +57,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@ai-ppt-edit/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.6)
-      '@hds/protocol':
-        specifier: workspace:*
-        version: link:../../packages/protocol
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

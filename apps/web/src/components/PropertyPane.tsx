@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeckStore } from '../store/deckStore.js';
-import type { PatchOp } from '@hds/protocol';
+import type { PatchOp } from '@ai-ppt-edit/protocol';
 
 type ZOrderOp = 'front' | 'back' | 'forward' | 'backward';
 

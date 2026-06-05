@@ -1,7 +1,7 @@
 /**
- * Local copies of @hds/protocol runtime helpers.
+ * Local copies of @ai-ppt-edit/protocol runtime helpers.
  * Using local copies avoids Node.js ESM resolution issues with tsx + workspace .ts packages.
- * Types are still imported from @hds/protocol (erased at runtime).
+ * Types are still imported from @ai-ppt-edit/protocol (erased at runtime).
  */
 
 export type ExportFormat = 'pptx' | 'pdf';

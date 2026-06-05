@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Base URL of the export API in production, e.g. https://api.next-ppt.com. Empty in dev. */
+  /** Base URL of the export API in production, e.g. https://api.ai-ppt-edit.com. Empty in dev. */
   readonly VITE_API_BASE?: string;
 }
 

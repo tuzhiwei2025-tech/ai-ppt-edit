@@ -3,8 +3,8 @@
  * All disk I/O lives here; the rest of the app only sees DeckStore.
  */
 import { ulid } from '../lib/ulid.js';
-import type { DeckMeta } from '@hds/protocol';
-import { SLIDE_SELECTOR } from '@hds/protocol';
+import type { DeckMeta } from '@ai-ppt-edit/protocol';
+import { SLIDE_SELECTOR } from '@ai-ppt-edit/protocol';
 import type { SlideState } from '../store/deckStore.js';
 
 const IDB_DB = 'hds-v1';

@@ -2,7 +2,7 @@ import type zh from '../zh/landing.js';
 
 const landing: typeof zh = {
   nav: {
-    homeAria: 'NextPPT home',
+    homeAria: 'AI PPT Edit home',
     guide: 'Guide',
     openFile: 'Open file',
   },
@@ -20,7 +20,7 @@ const landing: typeof zh = {
     support: 'Works with a folder (read/write paired images) or a single self-contained HTML · Chromium browser required',
   },
   value: {
-    eyebrow: 'Why NextPPT',
+    eyebrow: 'Why AI PPT Edit',
     titleA: 'AI can generate it, but',
     titleAccent: "you can't tweak it",
     subtitle: 'Leave that last step to us.',
@@ -30,7 +30,7 @@ const landing: typeof zh = {
       'Yet the moment you want a new font, a tweaked palette or reworded copy, you go back to the chat and describe it all again — burning tokens and waiting on every round.',
     ],
     solution:
-      '<brand>NextPPT</brand> lets you drop that HTML right in and click anything on the page to change fonts, colors and content — WYSIWYG, <em>no more spinning up a whole AI round just to fix one word</em>.',
+      '<brand>AI PPT Edit</brand> lets you drop that HTML right in and click anything on the page to change fonts, colors and content — WYSIWYG, <em>no more spinning up a whole AI round just to fix one word</em>.',
   },
   hub: {
     unsupportedTitle: 'This browser cannot read or write local files',
@@ -67,7 +67,7 @@ const landing: typeof zh = {
     colAbout: 'About',
     localFirst: 'Local-first',
     noLogin: 'No login',
-    copy: '© {{year}} NextPPT',
+    copy: '© {{year}} AI PPT Edit',
   },
 };
 

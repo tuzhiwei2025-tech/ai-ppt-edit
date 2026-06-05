@@ -361,7 +361,7 @@ export function CinematicFooter() {
             
             {/* Copyright */}
             <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase order-2 md:order-1">
-              MIT open-source project · 2026 NextPPT
+              MIT open-source project · 2026 AI PPT Edit
             </div>
 
             {/* "Made with Love" Badge */}

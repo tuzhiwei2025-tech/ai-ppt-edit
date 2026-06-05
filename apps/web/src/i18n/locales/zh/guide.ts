@@ -1,7 +1,7 @@
 export default {
   header: {
     back: '返回',
-    backHome: '回到 NextPPT',
+    backHome: '回到 AI PPT Edit',
     title: '使用指南',
     backToEdit: '返回编辑',
   },
@@ -63,7 +63,7 @@ export default {
     openFile: '打开文件',
   },
   footer: {
-    backHome: '← 回到 NextPPT',
+    backHome: '← 回到 AI PPT Edit',
     local: '本地优先 · 文件只在你电脑里',
   },
 };

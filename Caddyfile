@@ -1,4 +1,4 @@
-api.next-ppt.com {
+api.ai-ppt-edit.com {
 	# Stream SSE export progress without buffering.
 	reverse_proxy api:3000 {
 		flush_interval -1

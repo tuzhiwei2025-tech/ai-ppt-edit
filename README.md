@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="apps/web/public/logo-mark.svg" alt="NextPPT" width="84" height="84" />
+<img src="apps/web/public/logo-mark.svg" alt="AI PPT Edit" width="84" height="84" />
 
-# NextPPT
+# AI PPT Edit
 
 **The next PPT — edit AI-generated HTML decks in your browser, then export pixel-perfect PPTX / PDF in one click.**
 
@@ -15,10 +15,10 @@ English | [简体中文](README.zh-CN.md)
 
 </div>
 
-> Your AI tool already writes beautiful `deck.html`. NextPPT is the missing last mile: click to fix one word, drag to rearrange, ship it as a slide — without another prompt round.
+> Your AI tool already writes beautiful `deck.html`. AI PPT Edit is the missing last mile: click to fix one word, drag to rearrange, ship it as a slide — without another prompt round.
 
 <div align="center">
-  <img src="docs/assets/demo.gif" alt="NextPPT demo" width="760" />
+  <img src="docs/assets/demo.gif" alt="AI PPT Edit demo" width="760" />
   <br />
   <sub>Demo placeholder · drop a <code>demo.gif</code> into <code>docs/assets/</code></sub>
 </div>
@@ -33,7 +33,7 @@ Then the same three problems show up:
 - **Projectors want PPT/PDF.** Schools require `.pptx`, clients want `.pdf`, and raw HTML on a projector loves to drop fonts or stall on the network.
 - **Privacy anxiety is real.** Thesis defenses, client proposals, internal decks — people don't want to upload any of it to an online editor.
 
-**NextPPT** does one thing well: take HTML you already have, let you point-and-edit it in the browser, and export high-fidelity PPT/PDF — **without your files ever leaving your machine.**
+**AI PPT Edit** does one thing well: take HTML you already have, let you point-and-edit it in the browser, and export high-fidelity PPT/PDF — **without your files ever leaving your machine.**
 
 It is *not* an AI slide generator, not another DSL like reveal.js / Slidev, not a cloud editor. It's a pair of scissors for AI decks.
 
