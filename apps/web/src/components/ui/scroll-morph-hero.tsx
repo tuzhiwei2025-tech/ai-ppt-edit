@@ -14,8 +14,6 @@ export type AnimationPhase = "scatter" | "line" | "circle" | "bottom-strip";
 interface FlipCardProps {
     src: string;
     index: number;
-    total: number;
-    phase: AnimationPhase;
     target: { x: number; y: number; rotation: number; scale: number; opacity: number };
 }
 
@@ -26,8 +24,6 @@ const IMG_HEIGHT = 85; // Reduced from 140
 function FlipCard({
     src,
     index,
-    total,
-    phase,
     target,
 }: FlipCardProps) {
     return (
@@ -81,8 +77,8 @@ function FlipCard({
                     style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                 >
                     <div className="text-center">
-                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mb-1">View</p>
-                        <p className="text-xs font-medium text-white">Details</p>
+                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-normal mb-1">Template</p>
+                        <p className="text-xs font-medium text-white">HTML deck</p>
                     </div>
                 </div>
             </motion.div>
@@ -94,28 +90,27 @@ function FlipCard({
 const TOTAL_IMAGES = 20;
 const MAX_SCROLL = 3000; // Virtual scroll range
 
-// Unsplash Images
 const IMAGES = [
-    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=300&q=80",
-    "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=300&q=80",
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&q=80",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&q=80",
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300&q=80",
-    "https://images.unsplash.com/photo-1506765515384-028b60a970df?w=300&q=80",
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&q=80",
-    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=300&q=80",
-    "https://images.unsplash.com/photo-1500485035595-cbe6f645feb1?w=300&q=80",
-    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&q=80",
-    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80",
-    "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=300&q=80",
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&q=80",
-    "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=300&q=80",
-    "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=300&q=80",
-    "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=300&q=80",
-    "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=300&q=80",
-    "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=300&q=80",
-    "https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?w=300&q=80",
-    "https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?w=300&q=80",
+    "/guide-step-generate.png",
+    "/guide-step-edit.png",
+    "/guide-step-export.png",
+    "/og-image.png",
+    "/icon-512.png",
+    "/brand-n.png",
+    "/guide-step-generate.png",
+    "/guide-step-edit.png",
+    "/guide-step-export.png",
+    "/og-image.png",
+    "/icon-512.png",
+    "/brand-n.png",
+    "/guide-step-generate.png",
+    "/guide-step-edit.png",
+    "/guide-step-export.png",
+    "/og-image.png",
+    "/icon-512.png",
+    "/brand-n.png",
+    "/guide-step-generate.png",
+    "/guide-step-edit.png",
 ];
 
 // Helper for linear interpolation
@@ -160,10 +155,11 @@ export default function IntroAnimation() {
         if (!container) return;
 
         const handleWheel = (e: WheelEvent) => {
-            // Prevent default to stop browser overscroll/bounce
-            e.preventDefault();
-
             const newScroll = Math.min(Math.max(scrollRef.current + e.deltaY, 0), MAX_SCROLL);
+            if ((scrollRef.current === 0 && e.deltaY < 0) || (scrollRef.current === MAX_SCROLL && e.deltaY > 0)) {
+                return;
+            }
+            e.preventDefault();
             scrollRef.current = newScroll;
             virtualScroll.set(newScroll);
         };
@@ -179,6 +175,9 @@ export default function IntroAnimation() {
             touchStartY = touchY;
 
             const newScroll = Math.min(Math.max(scrollRef.current + deltaY, 0), MAX_SCROLL);
+            if ((scrollRef.current === 0 && deltaY < 0) || (scrollRef.current === MAX_SCROLL && deltaY > 0)) {
+                return;
+            }
             scrollRef.current = newScroll;
             virtualScroll.set(newScroll);
         };
@@ -235,10 +234,10 @@ export default function IntroAnimation() {
 
     // --- Random Scatter Positions ---
     const scatterPositions = useMemo(() => {
-        return IMAGES.map(() => ({
-            x: (Math.random() - 0.5) * 1500,
-            y: (Math.random() - 0.5) * 1000,
-            rotation: (Math.random() - 0.5) * 180,
+        return IMAGES.map((_, i) => ({
+            x: (Math.sin(i * 17.17) * 0.5) * 1500,
+            y: (Math.cos(i * 11.31) * 0.5) * 1000,
+            rotation: Math.sin(i * 5.73) * 90,
             scale: 0.6,
             opacity: 0,
         }));
@@ -266,7 +265,7 @@ export default function IntroAnimation() {
     const contentY = useTransform(smoothMorph, [0.8, 1], [20, 0]);
 
     return (
-        <div ref={containerRef} className="relative w-full h-full bg-[#FAFAFA] overflow-hidden">
+        <div ref={containerRef} className="relative w-full h-full bg-[#f7f7f2] overflow-hidden">
             {/* Container */}
             <div className="flex h-full w-full flex-col items-center justify-center perspective-1000">
 
@@ -276,17 +275,17 @@ export default function IntroAnimation() {
                         initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                         animate={introPhase === "circle" && morphValue < 0.5 ? { opacity: 1 - morphValue * 2, y: 0, filter: "blur(0px)" } : { opacity: 0, filter: "blur(10px)" }}
                         transition={{ duration: 1 }}
-                        className="text-2xl font-medium tracking-tight text-gray-800 md:text-4xl"
+                        className="text-2xl font-medium tracking-normal text-gray-800 md:text-4xl"
                     >
-                        The future is built on AI.
+                        AI 生成的模板，进入可编辑层。
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={introPhase === "circle" && morphValue < 0.5 ? { opacity: 0.5 - morphValue } : { opacity: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className="mt-4 text-xs font-bold tracking-[0.2em] text-gray-500"
+                        className="mt-4 text-xs font-bold tracking-normal text-gray-500"
                     >
-                        SCROLL TO EXPLORE
+                        SCROLL TO MORPH
                     </motion.p>
                 </div>
 
@@ -295,12 +294,11 @@ export default function IntroAnimation() {
                     style={{ opacity: contentOpacity, y: contentY }}
                     className="absolute top-[10%] z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4"
                 >
-                    <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-4">
-                        Explore Our Vision
+                    <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-normal mb-4">
+                        NextPPT 模板生态
                     </h2>
                     <p className="text-sm md:text-base text-gray-600 max-w-lg leading-relaxed">
-                        Discover a world where technology meets creativity. <br className="hidden md:block" />
-                        Scroll through our curated collection of innovations designed to shape the future.
+                        Manus、Code、Cursor、Claude 产出的 HTML PPT，统一进入浏览器编辑和导出工作流。
                     </p>
                 </motion.div>
 
@@ -400,8 +398,6 @@ export default function IntroAnimation() {
                                 key={i}
                                 src={src}
                                 index={i}
-                                total={TOTAL_IMAGES}
-                                phase={introPhase} // Pass intro phase for initial animations
                                 target={target}
                             />
                         );

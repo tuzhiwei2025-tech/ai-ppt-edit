@@ -18,6 +18,9 @@ import { motion } from "motion/react";
 
 export interface AnimatedThemeTogglerProps {
   sound?: boolean;
+  pressed?: boolean;
+  onToggle?: () => void;
+  ariaLabel?: string;
 }
 
 /* ── Audio ── */
@@ -74,6 +77,9 @@ function tick(last: React.MutableRefObject<number>) {
 
 export function AnimatedThemeToggler({
   sound = true,
+  pressed,
+  onToggle,
+  ariaLabel = "Toggle theme",
 }: AnimatedThemeTogglerProps) {
   const rawId = useId();
   const maskId = `att${rawId.replace(/:/g, "")}`;
@@ -82,13 +88,20 @@ export function AnimatedThemeToggler({
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
+    setIsDark(pressed ?? document.documentElement.classList.contains("dark"));
     requestAnimationFrame(() => {
       isFirst.current = false;
     });
-  }, []);
+  }, [pressed]);
 
   const toggle = () => {
+    if (onToggle) {
+      setIsDark((value) => !value);
+      onToggle();
+      if (sound) tick(lastSnd);
+      return;
+    }
+
     const dark = document.documentElement.classList.toggle("dark");
     setIsDark(dark);
     if (sound) tick(lastSnd);
@@ -123,7 +136,7 @@ export function AnimatedThemeToggler({
           outline: "none",
           WebkitTapHighlightColor: "transparent",
         }}
-        aria-label="Toggle theme"
+        aria-label={ariaLabel}
       >
         <motion.svg
           width="20"

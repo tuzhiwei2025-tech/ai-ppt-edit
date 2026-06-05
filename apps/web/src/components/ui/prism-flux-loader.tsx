@@ -1,23 +1,33 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {PlusIcon} from "lucide-react"
+import { PlusIcon } from "lucide-react";
+
 interface CubeLoaderProps {
   size?: number; // cube size
   speed?: number; // rotation speed
-  textSeize?: number;
+  textSize?: number;
+  statuses?: string[];
+  label?: string;
+  compact?: boolean;
+  showText?: boolean;
+  className?: string;
 }
+
+const DEFAULT_STATUSES = ["Fetching", "Fixing", "Updating", "Placing", "Syncing", "Processing"];
 
 export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
   size = 30,
   speed = 5,
-  textSize = 50,
+  textSize = 12,
+  statuses = DEFAULT_STATUSES,
+  label,
+  compact = false,
+  showText = true,
+  className = "",
 }) => {
   const [time, setTime] = useState(0);
   const [statusIndex, setStatusIndex] = useState(0);
-
-  // Loader steps
-  const statuses = ["Fetching", "Fixing", "Updating", "Placing", "Syncing", "Processing"];
 
   // Cube rotation timer
   useEffect(() => {
@@ -36,10 +46,10 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
   }, [statuses.length]);
 
   const half = size / 2;
-  const currentStatus = statuses[statusIndex];
+  const currentStatus = label ?? statuses[statusIndex] ?? DEFAULT_STATUSES[0];
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 h-[220px]">
+    <div className={`${compact ? "inline-flex flex-row gap-2 h-auto" : "flex flex-col gap-4 h-[220px]"} items-center justify-center ${className}`}>
       {/* Cube Container */}
       <div
         className="relative"
@@ -66,27 +76,28 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
           return (
             <div
               key={i}
-              className={`absolute flex items-center justify-center text-[${textSize}px] font-semibold text-foreground`}
+              className="absolute flex items-center justify-center font-semibold text-foreground"
               style={{
                 width: size,
                 height: size,
                 border: `1px solid var(--foreground)`,
                 transform: faceTransforms[i],
                 backfaceVisibility: "hidden",
+                fontSize: textSize,
               }}
             >
-             <PlusIcon/>
+              <PlusIcon size={Math.max(10, size * 0.5)} />
             </div>
           );
         })}
       </div>
 
       {/* Status Text Below Cube */}
-      <div
-        className="text-sm font-semibold text-foreground tracking-wide"
-      >
-        {currentStatus}...
-      </div>
+      {showText && (
+        <div className={`${compact ? "text-xs" : "text-sm"} font-semibold text-foreground tracking-normal`}>
+          {currentStatus}...
+        </div>
+      )}
     </div>
   );
 };

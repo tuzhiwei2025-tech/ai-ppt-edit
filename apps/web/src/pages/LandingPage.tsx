@@ -8,6 +8,8 @@ import { OpenDeckErrorAlert } from '../components/OpenDeckErrorAlert.js';
 import AnimatedFooter from '../components/ui/animated-footer.js';
 import { CinematicFooter } from '../components/ui/motion-footer.js';
 import { PerspectiveMarquee } from '../components/ui/remocn-perspective-marquee.js';
+import IntroAnimation from '../components/ui/scroll-morph-hero.js';
+import { PrismFluxLoader } from '../components/ui/prism-flux-loader.js';
 
 const platformTemplates = [
   'Manus',
@@ -118,6 +120,28 @@ export function LandingPage() {
       <SiteHeader />
 
       <main>
+        <section className="relative h-screen min-h-[660px] overflow-hidden border-b border-[#101113]/10 dark:border-white/10">
+          <IntroAnimation />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[#f7f7f2] via-[#f7f7f2]/78 to-transparent px-5 pb-8 pt-24 dark:from-[#111113] dark:via-[#111113]/78">
+            <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-normal text-[#0f766e] dark:text-[#2dd4bf]">Scroll morph hero</p>
+                <h1 className="mt-2 max-w-3xl text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+                  AI PPT 模板先聚合，再进入可编辑工作台。
+                </h1>
+              </div>
+              <div className="pointer-events-auto flex flex-wrap gap-3">
+                <button onClick={openPrimary} disabled={loading} className="hds-btn-primary px-5 py-3 text-sm font-semibold disabled:opacity-50">
+                  {loading ? <PrismFluxLoader compact size={16} speed={4} label="Opening" /> : '打开 HTML PPT'}
+                </button>
+                <button onClick={() => document.getElementById('templates')?.scrollIntoView({ behavior: 'smooth' })} className="hds-btn px-5 py-3 text-sm font-semibold">
+                  查看模板平台
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="top" className="relative px-5 sm:px-8 pt-14 sm:pt-20 pb-16">
           <div className="absolute inset-x-0 top-0 h-px bg-[#101113]/10 dark:bg-white/10" aria-hidden="true" />
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:items-center">
@@ -145,7 +169,7 @@ export function LandingPage() {
               <div className="np-hero-actions mt-8 flex flex-wrap gap-3">
                 {FS_API_SUPPORTED ? (
                   <button onClick={openPrimary} disabled={loading} className="hds-btn-primary px-6 py-3 text-sm font-semibold disabled:opacity-50">
-                    {loading ? 'Opening...' : '打开 HTML PPT'}
+                    {loading ? <PrismFluxLoader compact size={16} speed={4} label="Opening" /> : '打开 HTML PPT'}
                   </button>
                 ) : (
                   <span className="rounded-md border border-[#101113]/10 px-4 py-3 text-sm text-[#4e5357] dark:border-white/10 dark:text-[#b7bbc1]">

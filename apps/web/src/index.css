@@ -1292,6 +1292,24 @@ select.hds-input {
 .hds-lang-btn:hover { color: var(--label); }
 .hds-lang-btn.is-active { color: var(--label); font-weight: 600; }
 .hds-lang-sep { color: var(--separator); }
+.hds-lang-animated {
+  gap: 4px;
+  padding: 2px;
+  border-radius: 8px;
+  border: 0.5px solid var(--separator);
+  background: var(--content-bg);
+}
+.hds-lang-text {
+  color: var(--tertiary-label);
+  padding: 2px 5px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.hds-lang-text:hover,
+.hds-lang-text[aria-pressed='true'] {
+  color: var(--label);
+  background: var(--control-bg);
+}
 
 /* Inside the dark floating bar the generic label variables resolve to dark
    colours; override to white-on-dark to stay readable. */
@@ -1299,6 +1317,10 @@ select.hds-input {
 .hds-floating-bar .hds-lang-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
 .hds-floating-bar .hds-lang-btn.is-active { color: #fff; font-weight: 600; }
 .hds-floating-bar .hds-lang-sep { color: rgba(255, 255, 255, 0.25); }
+.hds-floating-bar .hds-lang-animated { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+.hds-floating-bar .hds-lang-text { color: rgba(255,255,255,0.55); }
+.hds-floating-bar .hds-lang-text:hover,
+.hds-floating-bar .hds-lang-text[aria-pressed='true'] { color: #fff; background: rgba(255,255,255,0.08); }
 
 .hds-emblem { filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55)); }
 

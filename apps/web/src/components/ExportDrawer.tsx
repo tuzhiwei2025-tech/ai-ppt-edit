@@ -4,6 +4,7 @@ import type { ExportFormat, ExportResolution, ExportPageRange } from '@hds/proto
 import { useDeckStore } from '../store/deckStore.js';
 import { rebuildDeckHtmlForExport } from '../fs/adapter.js';
 import { getBlobToPathMap } from '../fs/assetResolver.js';
+import { PrismFluxLoader } from './ui/prism-flux-loader.js';
 
 /**
  * Base URL of the export API. Empty in dev (Vite proxies /v1 to localhost:3000);
@@ -261,7 +262,7 @@ export function ExportDrawer({ open, onClose }: ExportDrawerProps) {
             disabled={exporting}
             className="hds-btn-primary w-full py-2.5 text-sm font-medium"
           >
-            {exporting ? t('exportDrawer.exporting') : t('exportDrawer.start', { format: format.toUpperCase() })}
+            {exporting ? <PrismFluxLoader compact size={16} speed={4} label={t('exportDrawer.exporting').replace(/…$/, '')} /> : t('exportDrawer.start', { format: format.toUpperCase() })}
           </button>
         </div>
       </aside>

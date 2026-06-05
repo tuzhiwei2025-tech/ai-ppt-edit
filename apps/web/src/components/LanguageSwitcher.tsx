@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { localePrefix, storeLocale, type Locale } from '../i18n/index.js';
 import { useCurrentLocale } from '../hooks/useGuideNav.js';
+import { AnimatedThemeToggler } from './ui/animated-theme-toggler.js';
 
 /** Strip the leading /en (if any) to get the locale-agnostic subpath. */
 function subpathOf(pathname: string, current: Locale): string {
@@ -27,23 +28,20 @@ export function LanguageSwitcher() {
     navigate((next || '/') + search + hash);
   };
 
+  const toggleLocale = () => switchTo(current === 'zh' ? 'en' : 'zh');
+
   return (
-    <div className="hds-lang" role="group" aria-label={t('language.label')}>
-      <button
-        type="button"
-        className={`hds-lang-btn ${current === 'zh' ? 'is-active' : ''}`}
-        aria-pressed={current === 'zh'}
-        onClick={() => switchTo('zh')}
-      >
+    <div className="hds-lang hds-lang-animated" role="group" aria-label={t('language.label')}>
+      <button type="button" className="hds-lang-text" onClick={() => switchTo('zh')} aria-pressed={current === 'zh'}>
         {t('language.zh')}
       </button>
-      <span className="hds-lang-sep" aria-hidden="true">/</span>
-      <button
-        type="button"
-        className={`hds-lang-btn ${current === 'en' ? 'is-active' : ''}`}
-        aria-pressed={current === 'en'}
-        onClick={() => switchTo('en')}
-      >
+      <AnimatedThemeToggler
+        pressed={current === 'en'}
+        onToggle={toggleLocale}
+        sound={false}
+        ariaLabel={t('language.label')}
+      />
+      <button type="button" className="hds-lang-text" onClick={() => switchTo('en')} aria-pressed={current === 'en'}>
         {t('language.en')}
       </button>
     </div>

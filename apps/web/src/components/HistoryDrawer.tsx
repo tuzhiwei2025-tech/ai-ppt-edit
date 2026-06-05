@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import type { HistoryCtx, SnapshotMeta } from '../fs/history.js';
 import { listSnapshots, readSnapshot, deleteSnapshot } from '../fs/history.js';
+import { PrismFluxLoader } from './ui/prism-flux-loader.js';
 
 interface HistoryDrawerProps {
   open: boolean;
@@ -127,7 +128,7 @@ export function HistoryDrawer({ open, ctx, onClose, onRestore }: HistoryDrawerPr
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs text-[var(--tertiary-label)]">
-                {loading ? t('historyDrawer.loading') : t('historyDrawer.selectPrompt')}
+                {loading ? <PrismFluxLoader compact size={16} speed={4} label={t('historyDrawer.loading').replace(/…$/, '')} /> : t('historyDrawer.selectPrompt')}
               </div>
             )}
           </div>

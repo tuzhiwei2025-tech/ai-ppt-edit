@@ -6,6 +6,7 @@ import { LandingPage } from './pages/LandingPage.js';
 import { GuidePage } from './pages/GuidePage.js';
 import { useDeckStore } from './store/deckStore.js';
 import type { Locale } from './i18n/index.js';
+import { PrismFluxLoader } from './components/ui/prism-flux-loader.js';
 
 // Lazy so the editor (and Monaco) is never imported during prerender — the
 // store starts empty, so HomeRoute always renders the landing page server-side.
@@ -17,7 +18,11 @@ function HomeRoute() {
   const hasDeck = useDeckStore((s) => s.slides.length > 0);
   if (!hasDeck) return <LandingPage />;
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={
+      <div className="min-h-screen grid place-items-center bg-[var(--window-bg)]">
+        <PrismFluxLoader label="Loading editor" size={34} speed={4} />
+      </div>
+    }>
       <EditorPage />
     </Suspense>
   );
