@@ -1,0 +1,15 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# pnpm blocks dependency build scripts by default (v10 warns / v11 errors with
+# ERR_PNPM_IGNORED_BUILDS). puppeteer's postinstall MUST run to download Chromium,
+# so allow build scripts. Safe here: own app with a committed lockfile.
+# NOTE: do not also set onlyBuiltDependencies — pnpm 10 treats the combo as a
+# conflict (ERR_PNPM_CONFIG_CONFLICT_BUILT_DEPENDENCIES).
+dangerouslyAllowAllBuilds: true
+
+# Disable pnpm's default 24h new-package cooldown (default minimumReleaseAge=1440),
+# which otherwise blocks our committed lockfile's recently published deps in clean
+# Docker/CI builds with ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION.
+minimumReleaseAge: 0

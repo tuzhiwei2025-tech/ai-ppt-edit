@@ -1,0 +1,21 @@
+{
+  "name": "html-deck-studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "HTML Deck Studio monorepo – trim AI-generated HTML decks, export pixel-perfect PPTX/PDF",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --prefix-colors \"bgBlue.bold,bgGreen.bold\" --names \"API,WEB\" \"pnpm --filter @hds/api dev\" \"pnpm --filter @hds/web dev\"",
+    "build": "pnpm --filter '@hds/protocol' build && pnpm --parallel --filter './apps/*' build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.0",
+    "typescript": "^5.5.4"
+  }
+}
