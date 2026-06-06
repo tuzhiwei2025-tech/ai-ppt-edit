@@ -4,8 +4,8 @@
   "description": "下一代 PPT，从 HTML 开始",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#7e14ff",
+  "background_color": "#f8f5f0",
+  "theme_color": "#2e7d32",
   "icons": [
     {
       "src": "/icon-192.png",

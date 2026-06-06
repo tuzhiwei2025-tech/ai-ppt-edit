@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import { exportHandler, downloadHandler } from './routes/export.js';
 import { assetRoutes } from './routes/assets.js';
+import { capabilityRoutes } from './routes/capabilities.js';
 
 const app = Fastify({ logger: true });
 
@@ -23,6 +24,7 @@ await app.register(multipart, { limits: { fileSize: 200 * 1024 * 1024 } }); // 2
 app.post('/v1/export', exportHandler);
 app.get('/v1/download/:token', downloadHandler);
 await app.register(assetRoutes);
+await app.register(capabilityRoutes);
 
 app.get('/healthz', async () => ({ ok: true }));
 

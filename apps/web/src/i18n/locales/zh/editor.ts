@@ -6,6 +6,7 @@ export default {
     expandRail: '展开页面列表',
     collapseInspector: '收起检查器',
     expandInspector: '展开检查器',
+    resizeInspector: '拖拽调整检查器宽度',
     inspectorDisabled: '检查器（选中元素后可用）',
     undo: '撤销',
     undoTitle: '撤销 (⌘Z)',
@@ -81,13 +82,27 @@ export default {
     bringForward: '上移一层',
     sendBackward: '下移一层',
     layerLabel: '层级',
-    layerPosition: '第 {{index}} / 共 {{count}} 层',
+    layerPosition: '{{role}} · 第 {{index}} / 共 {{count}} 层',
     layerHint: '调整层级后将浮于其他元素之上',
+    layerRole: '层级角色',
+    layerRoles: {
+      auto: '自动',
+      background: '背景',
+      content: '内容',
+      foreground: '前景',
+    },
     restoreAutoLayout: '恢复自动排版',
     deleteElement: '删除元素',
   },
   imageDrop: {
     hint: '松手即可把图片插入到此处',
+  },
+  watermark: {
+    label: '水印',
+    text: '水印文字',
+    mode: '水印模式',
+    center: '居中',
+    tiled: '平铺',
   },
   exportDrawer: {
     title: '导出',
@@ -134,18 +149,18 @@ export default {
     onlyCurrent: '仅编辑当前页 HTML',
     notApplied: '● 未应用',
     apply: '应用更改',
-    invalid: '无效：当前页必须包含 <section class="slide"> 根元素',
+    invalid: '无效：当前页必须包含 div.slide 或 div.slide-container 根元素',
   },
   open: {
     formatBrief:
-      '无法识别为幻灯片（需 <code>section.slide</code>）。到<link>使用指南</link>复制提示词，让 AI 按格式生成。',
+      '无法识别为平台生成的 HTML PPT。当前只处理 <code>div.slide</code>、<code>div.slide-container</code> 这类一页一个 HTML 的页面。',
   },
   errors: {
     needPermission: '需要文件夹访问权限',
     notFound:
-      '文件夹里没有可识别的幻灯片 HTML。需要包含至少一个 <section class="slide"> 页面。',
+      '文件夹里没有可识别的平台 HTML PPT 页面。请上传包含 div.slide 或 div.slide-container 页面的 HTML 文件夹。',
     noSlides:
-      '该 HTML 里没有 <section class="slide"> 幻灯片页，无法作为演示稿打开。',
+      '该 HTML 里没有可识别的平台 HTML PPT 页面，无法作为演示稿打开。',
     sampleFailed: '示例模板加载失败，请稍后重试',
     dropHtmlOnly: '请拖入 HTML 文件或包含 HTML 的文件夹。',
   },

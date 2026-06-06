@@ -13,8 +13,8 @@ export default {
    - <meta charset="UTF-8" />
    - <title>用一句话概括主题</title>（这会成为演示稿标题）
    - 一个 <style> 标签，所有样式都写在这里（不要外链 CSS 文件）。
-3. 每一页幻灯片都是一个 <section class="slide"> … </section>，直接作为 <body> 的子元素依次排列。
-   - class 必须正好包含 slide（解析器只识别 section.slide）。
+3. 每一页幻灯片使用 <div class="slide"> … </div> 或 <div class="slide-container"> … </div>。
+   - 如果是一页一个 HTML 文件，文件名请按 page_001.html / ppt01.html 这类顺序命名，方便文件夹上传后自动合并。
 
 【尺寸与样式（必须严格遵守）】
 - 每个 .slide 尺寸严格为 16:9：width: 1280px; height: 720px; box-sizing: border-box; overflow: hidden; position: relative。

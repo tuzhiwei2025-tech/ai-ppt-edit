@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 import type { HistoryCtx, SnapshotMeta } from '../fs/history.js';
 import { listSnapshots, readSnapshot, deleteSnapshot } from '../fs/history.js';
 import { PrismFluxLoader } from './ui/prism-flux-loader.js';
+import { BrutalButton } from './ui/brutal-button.js';
 
 interface HistoryDrawerProps {
   open: boolean;
@@ -169,13 +170,14 @@ export function HistoryDrawer({ open, ctx, onClose, onRestore }: HistoryDrawerPr
         </div>
 
         <div className="p-5 border-t border-[var(--separator)]">
-          <button
+          <BrutalButton
             onClick={() => void handleRestore()}
             disabled={busy || !selectedId}
-            className="hds-btn-primary w-full py-2.5 text-sm font-medium disabled:opacity-40"
+            variant="primary"
+            className="w-full py-2.5 text-sm"
           >
             {busy ? t('historyDrawer.restoring') : t('historyDrawer.restore')}
-          </button>
+          </BrutalButton>
           <p className="text-[11px] text-[var(--tertiary-label)] text-center mt-2 leading-relaxed">
             {t('historyDrawer.restoreHint')}
           </p>

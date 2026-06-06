@@ -14,6 +14,9 @@ export type AnimationPhase = "scatter" | "line" | "circle" | "bottom-strip";
 interface FlipCardProps {
     src: string;
     index: number;
+    backTitle: string;
+    backSubtitle: string;
+    alt: string;
     target: { x: number; y: number; rotation: number; scale: number; opacity: number };
 }
 
@@ -24,6 +27,9 @@ const IMG_HEIGHT = 85; // Reduced from 140
 function FlipCard({
     src,
     index,
+    backTitle,
+    backSubtitle,
+    alt,
     target,
 }: FlipCardProps) {
     return (
@@ -42,7 +48,6 @@ function FlipCard({
                 damping: 15,
             }}
 
-            // Initial style
             style={{
                 position: "absolute",
                 width: IMG_WIDTH,
@@ -60,25 +65,25 @@ function FlipCard({
             >
                 {/* Front Face */}
                 <div
-                    className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-200"
+                    className="absolute inset-0 h-full w-full overflow-hidden rounded-lg border border-border bg-card shadow-[0_14px_34px_color-mix(in_srgb,var(--foreground)_18%,transparent)]"
                     style={{ backfaceVisibility: "hidden" }}
                 >
                     <img
                         src={src}
-                        alt={`hero-${index}`}
+                        alt={`${alt} ${index + 1}`}
                         className="h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-transparent" />
+                    <div className="absolute inset-0 bg-foreground/10 transition-colors group-hover:bg-transparent" />
                 </div>
 
                 {/* Back Face */}
                 <div
-                    className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-900 flex flex-col items-center justify-center p-4 border border-gray-700"
+                    className="absolute inset-0 flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-border bg-foreground p-4 text-background shadow-[0_14px_34px_color-mix(in_srgb,var(--foreground)_18%,transparent)]"
                     style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                 >
                     <div className="text-center">
-                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-normal mb-1">Template</p>
-                        <p className="text-xs font-medium text-white">HTML deck</p>
+                        <p className="mb-1 text-[8px] font-bold uppercase tracking-widest text-primary">{backTitle}</p>
+                        <p className="text-xs font-medium text-background">{backSubtitle}</p>
                     </div>
                 </div>
             </motion.div>
@@ -90,33 +95,35 @@ function FlipCard({
 const TOTAL_IMAGES = 20;
 const MAX_SCROLL = 3000; // Virtual scroll range
 
-const IMAGES = [
-    "/guide-step-generate.png",
-    "/guide-step-edit.png",
-    "/guide-step-export.png",
-    "/og-image.png",
-    "/icon-512.png",
-    "/brand-n.png",
-    "/guide-step-generate.png",
-    "/guide-step-edit.png",
-    "/guide-step-export.png",
-    "/og-image.png",
-    "/icon-512.png",
-    "/brand-n.png",
-    "/guide-step-generate.png",
-    "/guide-step-edit.png",
-    "/guide-step-export.png",
-    "/og-image.png",
-    "/icon-512.png",
-    "/brand-n.png",
-    "/guide-step-generate.png",
-    "/guide-step-edit.png",
-];
+const DEFAULT_IMAGES = Array.from(
+    { length: TOTAL_IMAGES },
+    (_, index) => `/template-card-${String(index + 1).padStart(2, "0")}.png`
+);
 
 // Helper for linear interpolation
 const lerp = (start: number, end: number, t: number) => start * (1 - t) + end * t;
 
-export default function IntroAnimation() {
+export interface IntroAnimationProps {
+    introTitle: string;
+    scrollLabel: string;
+    activeTitle: string;
+    activeDescription: string;
+    cardBackTitle: string;
+    cardBackSubtitle: string;
+    cardAlt: string;
+    images?: string[];
+}
+
+export default function IntroAnimation({
+    introTitle,
+    scrollLabel,
+    activeTitle,
+    activeDescription,
+    cardBackTitle,
+    cardBackSubtitle,
+    cardAlt,
+    images = DEFAULT_IMAGES,
+}: IntroAnimationProps) {
     const [introPhase, setIntroPhase] = useState<AnimationPhase>("scatter");
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
@@ -159,6 +166,7 @@ export default function IntroAnimation() {
             if ((scrollRef.current === 0 && e.deltaY < 0) || (scrollRef.current === MAX_SCROLL && e.deltaY > 0)) {
                 return;
             }
+            // Prevent default only while the morph animation is consuming scroll.
             e.preventDefault();
             scrollRef.current = newScroll;
             virtualScroll.set(newScroll);
@@ -234,14 +242,14 @@ export default function IntroAnimation() {
 
     // --- Random Scatter Positions ---
     const scatterPositions = useMemo(() => {
-        return IMAGES.map((_, i) => ({
+        return images.map((_, i) => ({
             x: (Math.sin(i * 17.17) * 0.5) * 1500,
             y: (Math.cos(i * 11.31) * 0.5) * 1000,
             rotation: Math.sin(i * 5.73) * 90,
             scale: 0.6,
             opacity: 0,
         }));
-    }, []);
+    }, [images]);
 
     // --- Render Loop (Manual Calculation for Morph) ---
     const [morphValue, setMorphValue] = useState(0);
@@ -265,47 +273,47 @@ export default function IntroAnimation() {
     const contentY = useTransform(smoothMorph, [0.8, 1], [20, 0]);
 
     return (
-        <div ref={containerRef} className="relative w-full h-full bg-[#f7f7f2] overflow-hidden">
+        <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-transparent">
             {/* Container */}
             <div className="flex h-full w-full flex-col items-center justify-center perspective-1000">
 
                 {/* Intro Text (Fades out) */}
-                <div className="absolute z-0 flex flex-col items-center justify-center text-center pointer-events-none top-1/2 -translate-y-1/2">
+                <div className="pointer-events-none absolute top-1/2 z-20 flex -translate-y-1/2 flex-col items-center justify-center px-5 text-center">
                     <motion.h1
                         initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                         animate={introPhase === "circle" && morphValue < 0.5 ? { opacity: 1 - morphValue * 2, y: 0, filter: "blur(0px)" } : { opacity: 0, filter: "blur(10px)" }}
                         transition={{ duration: 1 }}
-                        className="text-2xl font-medium tracking-normal text-gray-800 md:text-4xl"
+                        className="text-2xl font-semibold tracking-normal text-foreground md:text-4xl"
                     >
-                        AI 生成的模板，进入可编辑层。
+                        {introTitle}
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={introPhase === "circle" && morphValue < 0.5 ? { opacity: 0.5 - morphValue } : { opacity: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className="mt-4 text-xs font-bold tracking-normal text-gray-500"
+                        className="mt-4 text-xs font-bold tracking-normal text-primary"
                     >
-                        SCROLL TO MORPH
+                        {scrollLabel}
                     </motion.p>
                 </div>
 
                 {/* Arc Active Content (Fades in) */}
                 <motion.div
                     style={{ opacity: contentOpacity, y: contentY }}
-                    className="absolute top-[10%] z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4"
+                    className="pointer-events-none absolute top-[10%] z-20 flex flex-col items-center justify-center px-4 text-center"
                 >
-                    <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-normal mb-4">
-                        AI PPT Edit 模板生态
+                    <h2 className="mb-4 text-3xl font-semibold tracking-normal text-foreground md:text-5xl">
+                        {activeTitle}
                     </h2>
-                    <p className="text-sm md:text-base text-gray-600 max-w-lg leading-relaxed">
-                        Manus、Code、Cursor、Claude 产出的 HTML PPT，统一进入浏览器编辑和导出工作流。
+                    <p className="max-w-lg text-sm leading-relaxed text-muted-foreground md:text-base">
+                        {activeDescription}
                     </p>
                 </motion.div>
 
                 {/* Main Container */}
-                <div className="relative flex items-center justify-center w-full h-full">
-                    {IMAGES.slice(0, TOTAL_IMAGES).map((src, i) => {
-                        let target = { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1 };
+                <div className="relative z-0 flex h-full w-full items-center justify-center">
+                    {images.slice(0, TOTAL_IMAGES).map((src, i) => {
+                        let target: FlipCardProps["target"];
 
                         // 1. Intro Phases (Scatter -> Line)
                         if (introPhase === "scatter") {
@@ -398,6 +406,9 @@ export default function IntroAnimation() {
                                 key={i}
                                 src={src}
                                 index={i}
+                                backTitle={cardBackTitle}
+                                backSubtitle={cardBackSubtitle}
+                                alt={cardAlt}
                                 target={target}
                             />
                         );

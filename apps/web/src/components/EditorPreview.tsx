@@ -16,56 +16,56 @@ export function EditorPreview() {
           <span className="hds-preview-dot" style={{ background: '#ff5f57' }} />
           <span className="hds-preview-dot" style={{ background: '#febc2e' }} />
           <span className="hds-preview-dot" style={{ background: '#28c840' }} />
-          <span className="ml-3 text-[11px] text-[var(--tertiary-label)] truncate">product-launch.html — AI PPT Edit</span>
-          <span className="ml-auto text-[10px] text-[var(--tertiary-label)] font-mono">1280 × 720</span>
+          <span className="ml-3 text-[11px] text-[var(--tertiary-label)] truncate">{t('preview.fileName')}</span>
+          <span className="ml-auto text-[10px] text-[var(--tertiary-label)] font-mono">{t('preview.canvasSize')}</span>
         </div>
 
         <div className="flex h-[300px] sm:h-[360px]">
           {/* Left rail: page thumbnails */}
-          <div className="hidden sm:flex flex-col gap-2 w-24 shrink-0 p-3 border-r border-[var(--separator)] bg-white/[0.015]">
+          <div className="hidden sm:flex flex-col gap-2 w-24 shrink-0 p-3 border-r border-[var(--separator)] bg-[var(--muted)]/30">
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`aspect-video rounded-md border ${i === 1 ? 'border-[var(--system-blue)]' : 'border-[var(--separator)]'} bg-white/[0.03]`}
+                className={`aspect-video rounded-md border ${i === 1 ? 'border-[var(--system-blue)]' : 'border-[var(--separator)]'} bg-[var(--card)]/50`}
               />
             ))}
           </div>
 
           {/* Canvas */}
-          <div className="flex-1 p-5 sm:p-7 flex items-center justify-center bg-[#0b0c0e]">
-            <div className="w-full aspect-video rounded-lg bg-gradient-to-br from-[#15161b] to-[#0e0f13] border border-[var(--separator)] p-6 sm:p-8 flex flex-col justify-center">
+          <div className="flex-1 p-5 sm:p-7 flex items-center justify-center bg-[var(--sidebar)]">
+            <div className="w-full aspect-video rounded-lg bg-gradient-to-br from-[var(--card)] to-[var(--secondary)] border border-[var(--separator)] p-6 sm:p-8 flex flex-col justify-center">
               <span className="text-[10px] font-mono tracking-widest uppercase text-[var(--system-blue)]">{t('preview.eyebrow')}</span>
               <h3 className="hds-preview-selected mt-2 text-lg sm:text-2xl font-bold text-[var(--label)] w-fit">
                 {t('preview.heading')}
               </h3>
               <div className="mt-4 space-y-2">
-                <div className="h-2 rounded-full bg-white/10 w-4/5" />
-                <div className="h-2 rounded-full bg-white/10 w-3/5" />
-                <div className="h-2 rounded-full bg-white/[0.07] w-2/3" />
+                <div className="h-2 rounded-full bg-[var(--muted-foreground)]/20 w-4/5" />
+                <div className="h-2 rounded-full bg-[var(--muted-foreground)]/20 w-3/5" />
+                <div className="h-2 rounded-full bg-[var(--muted-foreground)]/14 w-2/3" />
               </div>
               <div className="mt-5 flex gap-3">
-                <div className="h-14 w-28 rounded-md border border-[var(--separator)] bg-white/[0.03] grid place-items-center">
-                  <span className="text-[9px] font-mono text-[var(--tertiary-label)]">mermaid</span>
+                <div className="h-14 w-28 rounded-md border border-[var(--separator)] bg-[var(--muted)]/40 grid place-items-center">
+                  <span className="text-[9px] font-mono text-[var(--tertiary-label)]">{t('preview.diagramLabel')}</span>
                 </div>
-                <div className="h-14 flex-1 rounded-md border border-[var(--separator)] bg-white/[0.02]" />
+                <div className="h-14 flex-1 rounded-md border border-[var(--separator)] bg-[var(--muted)]/30" />
               </div>
             </div>
           </div>
 
           {/* Right inspector */}
-          <div className="hidden lg:flex flex-col gap-3 w-52 shrink-0 p-4 border-l border-[var(--separator)] bg-white/[0.015]">
+          <div className="hidden lg:flex flex-col gap-3 w-52 shrink-0 p-4 border-l border-[var(--separator)] bg-[var(--muted)]/30">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary-label)]">{t('preview.inspectorText')}</p>
             <div className="space-y-2">
-              <div className="h-7 rounded-md border border-[var(--separator)] bg-white/[0.03]" />
+              <div className="h-7 rounded-md border border-[var(--separator)] bg-[var(--card)]/50" />
               <div className="flex gap-2">
-                <div className="h-7 flex-1 rounded-md border border-[var(--separator)] bg-white/[0.03]" />
+                <div className="h-7 flex-1 rounded-md border border-[var(--separator)] bg-[var(--card)]/50" />
                 <div className="h-7 w-7 rounded-md border border-[var(--system-blue)] bg-[var(--cobalt-lt)]" />
               </div>
             </div>
             <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary-label)]">{t('preview.inspectorLayout')}</p>
             <div className="grid grid-cols-3 gap-2">
               {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-6 rounded border border-[var(--separator)] bg-white/[0.03]" />
+                <div key={i} className="h-6 rounded border border-[var(--separator)] bg-[var(--card)]/50" />
               ))}
             </div>
           </div>

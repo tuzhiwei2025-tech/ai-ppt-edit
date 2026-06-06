@@ -55,4 +55,4 @@ export function exportFilename(
   return `${safe}-p${min}-${max}.${format}`;
 }
 
-export const SLIDE_SELECTOR = 'section[class~="slide"]';
+export const SLIDE_SELECTOR = 'div[class~="slide"],div[class~="slide-container"]';

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BrutalButton } from './ui/brutal-button.js';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -38,11 +39,10 @@ export function ConfirmDialog({
   return (
     <div className="hds-modal-backdrop" onClick={onCancel}>
       <div
-        className="hds-modal"
+        className="hds-modal hds-confirm-modal"
         role="alertdialog"
         aria-modal="true"
         aria-label={title}
-        style={{ maxWidth: 440 }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="hds-modal-titlebar">
@@ -54,12 +54,24 @@ export function ConfirmDialog({
           <span className="hds-modal-title">{title}</span>
         </div>
 
-        <div className="hds-modal-body">
-          <div className="text-sm text-[var(--secondary-label)] leading-relaxed">{message}</div>
+        <div className="hds-modal-body hds-confirm-body">
+          <div className="hds-confirm-message">{message}</div>
 
-          <div className="mt-6 flex items-center justify-end gap-2.5">
-            <button onClick={onCancel} className="hds-btn px-4 py-2 text-sm">{cancelLabel ?? t('cancel')}</button>
-            <button onClick={onConfirm} className="hds-btn-primary px-4 py-2 text-sm font-medium">{confirmLabel ?? t('confirm')}</button>
+          <div className="hds-confirm-actions">
+            <BrutalButton
+              onClick={onCancel}
+              variant="secondary"
+              className="hds-confirm-button"
+            >
+              {cancelLabel ?? t('cancel')}
+            </BrutalButton>
+            <BrutalButton
+              onClick={onConfirm}
+              variant="contrast"
+              className="hds-confirm-button hds-confirm-button-primary"
+            >
+              {confirmLabel ?? t('confirm')}
+            </BrutalButton>
           </div>
         </div>
       </div>

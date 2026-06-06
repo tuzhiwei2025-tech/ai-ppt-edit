@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import Editor from '@monaco-editor/react';
 import { SLIDE_SELECTOR } from '@ai-ppt-edit/protocol';
 import { useDeckStore } from '../store/deckStore.js';
+import { BrutalButton } from './ui/brutal-button.js';
 
 /**
- * Code mode (F-10): edits only the current slide's <section> HTML.
- * On apply, validates the markup still has a `<section class="slide">` root
+ * Code mode (F-10): edits only the current slide's root HTML.
+ * On apply, validates the markup still has a supported div slide root
  * before committing back to the store.
  *
  * The parent remounts this component (via `key={currentSlideId}`) on slide
@@ -43,13 +44,14 @@ export function CodeEditorPane() {
         {error && <span className="text-red-500">{error}</span>}
         <div className="ml-auto flex items-center gap-2">
           {dirty && <span className="text-amber-500">{t('code.notApplied')}</span>}
-          <button
+          <BrutalButton
             onClick={apply}
             disabled={!dirty}
-            className="hds-btn-primary px-3 py-1 text-xs disabled:opacity-40"
+            variant="primary"
+            className="px-3 py-1 text-xs"
           >
             {t('code.apply')}
-          </button>
+          </BrutalButton>
         </div>
       </div>
       <div className="flex-1 min-h-0">

@@ -1,13 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240" fill="none">
-  <defs>
-    <linearGradient id="lk-grad" x1="20" y1="20" x2="220" y2="220" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#7e14ff"/>
-      <stop offset="1" stop-color="#a855ff"/>
-    </linearGradient>
-  </defs>
-  <g transform="translate(20 20) scale(0.390625)">
-    <rect width="512" height="512" rx="116" fill="url(#lk-grad)"/>
-    <path transform="translate(31 0) skewX(-7)" d="M148 126 L212 126 L300 280 L300 126 L364 126 L364 386 L300 386 L212 232 L212 386 L148 386 Z" fill="#ffffff"/>
-  </g>
-  <text x="252" y="158" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="132" font-weight="800" letter-spacing="-3" fill="#0b0b14">Next<tspan fill="#7e14ff">PPT</tspan></text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240" fill="none" >
+    <g transform="translate(20 20) scale(.390625)">
+
+    <defs>
+      <linearGradient id="mark-bg" x1="64" y1="42" x2="448" y2="470" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#1b5e20"/>
+        <stop offset=".58" stop-color="#1c2a1f"/>
+        <stop offset="1" stop-color="#0b160d"/>
+      </linearGradient>
+      <linearGradient id="mark-card" x1="130" y1="126" x2="382" y2="362" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#f0e9e0"/>
+      </linearGradient>
+      <linearGradient id="mark-line" x1="176" y1="328" x2="352" y2="178" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#2e7d32"/>
+        <stop offset="1" stop-color="#c8e6c9"/>
+      </linearGradient>
+      <filter id="mark-shadow" x="84" y="92" width="350" height="320" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+        <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity=".3"/>
+      </filter>
+    </defs>
+    <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#mark-bg)"/>
+    <rect x="22" y="22" width="468" height="468" rx="90" stroke="#c8e6c9" stroke-opacity=".18" stroke-width="6"/>
+    <g filter="url(#mark-shadow)">
+      <rect x="122" y="144" width="240" height="160" rx="28" fill="#c8e6c9" opacity=".32" transform="rotate(-9 242 224)"/>
+      <rect x="158" y="118" width="240" height="160" rx="28" fill="#f0e9e0" opacity=".72" transform="rotate(8 278 198)"/>
+      <rect x="132" y="176" width="248" height="174" rx="30" fill="url(#mark-card)"/>
+      <path d="M176 226h134M176 266h86" stroke="#1c2a1f" stroke-width="18" stroke-linecap="round" opacity=".88"/>
+      <path d="M184 330 348 188" stroke="url(#mark-line)" stroke-width="30" stroke-linecap="round"/>
+      <path d="m336 178 38 18-18 38-18-20-22 22-18-18 22-22-20-18Z" fill="#c8e6c9"/>
+    </g>
+
+    </g>
+    <text x="250" y="124" font-family="Montserrat, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="78" font-weight="900" fill="#3e2723">AI PPT Edit</text>
+    <text x="254" y="174" font-family="Source Code Pro, Menlo, monospace" font-size="25" font-weight="700" letter-spacing="2.4" fill="#2e7d32">HTML DECK WORKBENCH</text>
+  </svg>

@@ -7,6 +7,7 @@ import { gsap, useGSAP, revealOnScroll } from '../lib/gsap.js';
 import { useGuideNav } from '../hooks/useGuideNav.js';
 import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 import { OpenDeckErrorAlert } from '../components/OpenDeckErrorAlert.js';
+import { BrutalButton } from '../components/ui/brutal-button.js';
 import type { GuideTab } from '../data/guide.js';
 
 const ANCHORS: readonly GuideTab[] = ['generate', 'edit', 'export'];
@@ -93,14 +94,15 @@ export function GuidePage() {
     if (before === 0 && useDeckStore.getState().slides.length > 0) closeGuide();
   };
 
-  const OpenButton = ({ label, variant = 'primary' }: { label: string; variant?: 'primary' | 'plain' }) => (
-    <button
+  const renderOpenButton = (label: string) => (
+    <BrutalButton
       onClick={openInPlace}
-      className={`${variant === 'primary' ? 'hds-btn-primary' : 'hds-btn'} px-3.5 py-1.5 text-xs inline-flex items-center gap-1.5`}
+      variant="primary"
+      className="px-3.5 py-1.5 text-xs gap-1.5"
     >
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M2 5.5A1.5 1.5 0 013.5 4h3l1.5 1.5h4.5A1.5 1.5 0 0114 7v4.5A1.5 1.5 0 0112.5 13h-9A1.5 1.5 0 012 11.5v-6z" /></svg>
       {label}
-    </button>
+    </BrutalButton>
   );
 
   return (
@@ -121,7 +123,7 @@ export function GuidePage() {
             <div className="ml-auto flex items-center gap-3 sm:gap-4">
               <LanguageSwitcher />
               {hasDeck && (
-                <button onClick={closeGuide} className="hds-btn-primary px-3.5 py-1.5 text-xs">{t('header.backToEdit')}</button>
+                <BrutalButton onClick={closeGuide} variant="primary" className="px-3.5 py-1.5 text-xs">{t('header.backToEdit')}</BrutalButton>
               )}
             </div>
           </div>
@@ -199,7 +201,7 @@ export function GuidePage() {
 
               <div className="hds-guide-action">
                 <span className="text-xs text-[var(--tertiary-label)]">{t('generate.actionLabel')}</span>
-                <OpenButton label={t('generate.openGenerated')} />
+                {renderOpenButton(t('generate.openGenerated'))}
               </div>
             </div>
           </section>
@@ -239,9 +241,9 @@ export function GuidePage() {
               <div className="hds-guide-action">
                 <span className="text-xs text-[var(--tertiary-label)]">{t('edit.actionLabel')}</span>
                 {hasDeck ? (
-                  <button onClick={closeGuide} className="hds-btn-primary px-3.5 py-1.5 text-xs">{t('header.backToEdit')}</button>
+                  <BrutalButton onClick={closeGuide} variant="primary" className="px-3.5 py-1.5 text-xs">{t('header.backToEdit')}</BrutalButton>
                 ) : (
-                  <OpenButton label={t('edit.openMine')} />
+                  renderOpenButton(t('edit.openMine'))
                 )}
               </div>
             </div>
@@ -267,12 +269,12 @@ export function GuidePage() {
                 {hasDeck ? (
                   <>
                     <span className="text-xs text-[var(--tertiary-label)]">{t('export.actionHasDeck')}</span>
-                    <button onClick={closeGuide} className="hds-btn-primary px-3.5 py-1.5 text-xs">{t('export.backToExport')}</button>
+                    <BrutalButton onClick={closeGuide} variant="primary" className="px-3.5 py-1.5 text-xs">{t('export.backToExport')}</BrutalButton>
                   </>
                 ) : (
                   <>
                     <span className="text-xs text-[var(--tertiary-label)]">{t('export.actionNoDeck')}</span>
-                    <OpenButton label={t('export.openFile')} />
+                    {renderOpenButton(t('export.openFile'))}
                   </>
                 )}
               </div>

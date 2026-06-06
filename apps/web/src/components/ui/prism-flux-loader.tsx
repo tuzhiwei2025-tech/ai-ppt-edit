@@ -47,9 +47,16 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
 
   const half = size / 2;
   const currentStatus = label ?? statuses[statusIndex] ?? DEFAULT_STATUSES[0];
+  const loaderStyle = {
+    backgroundColor: "#000",
+    color: "#fff",
+  } satisfies React.CSSProperties;
 
   return (
-    <div className={`${compact ? "inline-flex flex-row gap-2 h-auto" : "flex flex-col gap-4 h-[220px]"} items-center justify-center ${className}`}>
+    <div
+      className={`${compact ? "inline-flex flex-row gap-2 h-auto rounded-[4px] px-2 py-1" : "flex flex-col gap-4 h-[220px] min-w-[220px]"} items-center justify-center ${className}`}
+      style={loaderStyle}
+    >
       {/* Cube Container */}
       <div
         className="relative"
@@ -74,11 +81,13 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
           return (
             <div
               key={i}
-              className="absolute flex items-center justify-center font-semibold text-foreground"
+              className="absolute flex items-center justify-center font-semibold"
               style={{
                 width: size,
                 height: size,
-                border: `1px solid var(--foreground)`,
+                backgroundColor: "#fff",
+                border: "1px solid #000",
+                color: "#000",
                 transform: faceTransforms[i],
                 backfaceVisibility: "hidden",
                 fontSize: textSize,
@@ -92,7 +101,7 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
 
       {/* Status Text Below Cube */}
       {showText && (
-        <div className={`${compact ? "text-xs" : "text-sm"} font-semibold text-foreground tracking-normal`}>
+        <div className={`${compact ? "text-xs" : "text-sm"} font-semibold tracking-normal`}>
           {currentStatus}...
         </div>
       )}

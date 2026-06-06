@@ -14,8 +14,8 @@ const prompt: typeof zh = {
    - <meta charset="UTF-8" />
    - <title>a one-line summary of the topic</title> (this becomes the deck title)
    - one <style> tag holding all styles (do not link external CSS files).
-3. Every slide is a <section class="slide"> … </section>, placed directly as children of <body> in order.
-   - The class must contain exactly slide (the parser only recognizes section.slide).
+3. Each slide uses <div class="slide"> … </div> or <div class="slide-container"> … </div>.
+   - For one-HTML-file-per-page exports, name files in order, such as page_001.html or ppt01.html, so folder upload can merge them automatically.
 
 [Size and styling (must follow strictly)]
 - Each .slide is strictly 16:9: width: 1280px; height: 720px; box-sizing: border-box; overflow: hidden; position: relative.

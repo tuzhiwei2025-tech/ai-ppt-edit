@@ -10,16 +10,23 @@ import { CodeEditorPane } from '../components/CodeEditorPane.js';
 import { ExportDrawer } from '../components/ExportDrawer.js';
 import { ConfirmDialog } from '../components/ConfirmDialog.js';
 import { HistoryDrawer } from '../components/HistoryDrawer.js';
-import type { PatchOp, RuntimeMessage } from '@ai-ppt-edit/protocol';
+import type { LayerRoleSetting, PatchOp, RuntimeMessage } from '@ai-ppt-edit/protocol';
 import { writeDeck, rebuildDeckHtmlForExport, writeAsset, saveAsNewFile, writeFileHandle, parseDeck } from '../fs/adapter.js';
 import type { HistoryCtx } from '../fs/history.js';
 import { recordSnapshot, listSnapshots } from '../fs/history.js';
 import { registerBlobPath, getBlobToPathMap, resolveAssetsInHtml, revokeAssetCache } from '../fs/assetResolver.js';
 import { ulid } from '../lib/ulid.js';
+import { clearEditorSession, persistEditorSession } from '../fs/session.js';
 
 const SLIDE_W = 1280;
 const SLIDE_H = 720;
 const DEFAULT_INSERT_WIDTH_RATIO = 0.36; // newly dropped images span ~36% of the slide width
+const INSPECTOR_MIN_WIDTH = 320;
+const INSPECTOR_MAX_WIDTH = 680;
+
+function clampInspectorWidth(width: number, maxWidth: number) {
+  return Math.max(INSPECTOR_MIN_WIDTH, Math.min(maxWidth, width));
+}
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -64,6 +71,7 @@ export function EditorPage() {
   const lastSavedAt = useDeckStore((s) => s.lastSavedAt);
   const viewMode = useDeckStore((s) => s.viewMode);
   const setViewMode = useDeckStore((s) => s.setViewMode);
+  const watermark = useDeckStore((s) => s.watermark);
   const updateSlideHtml = useDeckStore((s) => s.updateSlideHtml);
   const setRawHtml = useDeckStore((s) => s.setRawHtml);
   const markDirty = useDeckStore((s) => s.markDirty);
@@ -85,6 +93,8 @@ export function EditorPage() {
   const [firstSavePromptOpen, setFirstSavePromptOpen] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
   const [inspectorOpen, setInspectorOpen] = useState(true);
+  const [inspectorWidth, setInspectorWidth] = useState(360);
+  const [isInspectorResizing, setIsInspectorResizing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   // Canvas interaction mode. 'edit' = safe content editing (select + double-click
   // text + property panel). 'drag' = freeform move/resize/delete. Strictly
@@ -102,6 +112,7 @@ export function EditorPage() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const canvasCardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<CanvasHandle>(null);
+  const leavingHomeRef = useRef(false);
 
   const currentSlide = slides.find((s) => s.id === currentSlideId);
 
@@ -123,6 +134,45 @@ export function EditorPage() {
 
   const showInspector = viewMode === 'visual' && !!selection && inspectorOpen;
 
+  useEffect(() => {
+    if (!showInspector || !isInspectorResizing) return;
+
+    const maxWidth = () =>
+      Math.max(
+        INSPECTOR_MIN_WIDTH,
+        Math.min(INSPECTOR_MAX_WIDTH, window.innerWidth - (railOpen ? 280 : 128)),
+      );
+    const onPointerMove = (e: PointerEvent) => {
+      setInspectorWidth(clampInspectorWidth(window.innerWidth - e.clientX, maxWidth()));
+    };
+    const onPointerUp = () => {
+      setIsInspectorResizing(false);
+    };
+
+    document.body.classList.add('hds-is-resizing-inspector');
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    return () => {
+      document.body.classList.remove('hds-is-resizing-inspector');
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+  }, [isInspectorResizing, railOpen, showInspector]);
+
+  useEffect(() => {
+    if (!showInspector) return;
+    const onResize = () => {
+      const maxWidth = Math.max(
+        INSPECTOR_MIN_WIDTH,
+        Math.min(INSPECTOR_MAX_WIDTH, window.innerWidth - (railOpen ? 280 : 128)),
+      );
+      setInspectorWidth((width) => clampInspectorWidth(width, maxWidth));
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [railOpen, showInspector]);
+
   // Replacing slide HTML reloads the srcdoc iframe, which clears the in-iframe
   // selection overlay/handles. Track the live selector and restore it once the
   // reloaded runtime reports `ready`, so a selected (e.g. just-inserted) image
@@ -143,7 +193,9 @@ export function EditorPage() {
   // Mirror the mode into a ref so `handleMessage` (and the post-remount `ready`
   // handler) always reads the latest value without re-subscribing.
   const interactionModeRef = useRef(interactionMode);
-  interactionModeRef.current = interactionMode;
+  useEffect(() => {
+    interactionModeRef.current = interactionMode;
+  }, [interactionMode]);
 
   const handleMessage = useCallback((msg: RuntimeMessage) => {
     if (msg.type === 'select') lastSelectorRef.current = msg.selector;
@@ -212,6 +264,13 @@ export function EditorPage() {
     [],
   );
 
+  const handleSetLayerRole = useCallback(
+    (selector: string, role: LayerRoleSetting) => {
+      canvasRef.current?.sendMessage({ type: 'set-layer-role', selector, role });
+    },
+    [],
+  );
+
   // Save to disk. Folder mode → writeDeck (+ .hds-backup). File mode → write
   // to the working file handle (acquired on first save).
   const handleSave = useCallback(async () => {
@@ -226,7 +285,7 @@ export function EditorPage() {
     markSaving();
     // Restore blob: URLs (inserted/replaced images) back to on-disk relative
     // paths so the saved file reloads correctly in a later session.
-    const rebuilt = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap());
+    const rebuilt = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap(), watermark);
     setRawHtml(rebuilt);
     try {
       if (dirHandle) {
@@ -240,14 +299,14 @@ export function EditorPage() {
       if ((err as Error).name !== 'AbortError') console.error('save failed', err);
       markDirty();
     }
-  }, [dirHandle, fileHandle, deckFileName, rawHtml, slides, sourceFileName, markSaving, setRawHtml, markSaved, markDirty]);
+  }, [dirHandle, fileHandle, deckFileName, rawHtml, slides, sourceFileName, watermark, markSaving, setRawHtml, markSaved, markDirty]);
 
   // Single-file first save: confirmed from the explanation dialog. The button
   // click is a fresh user gesture, satisfying showSaveFilePicker's requirement.
   const confirmFirstSave = useCallback(async () => {
     setFirstSavePromptOpen(false);
     markSaving();
-    const rebuilt = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap());
+    const rebuilt = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap(), watermark);
     setRawHtml(rebuilt);
     try {
       const fh = await saveAsNewFile(deckFileName, rebuilt);
@@ -258,13 +317,13 @@ export function EditorPage() {
       if ((err as Error).name !== 'AbortError') console.error('save failed', err);
       markDirty();
     }
-  }, [deckFileName, rawHtml, slides, sourceFileName, setWorkingFileHandle, markSaving, setRawHtml, markSaved, markDirty]);
+  }, [deckFileName, rawHtml, slides, sourceFileName, watermark, setWorkingFileHandle, markSaving, setRawHtml, markSaved, markDirty]);
 
   // Restore a snapshot: record current content first (so restore is reversible),
   // then parse + resolve assets and apply. The resulting dirty state auto-saves.
   const handleRestore = useCallback(async (snapshotHtml: string) => {
     try {
-      const current = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap());
+      const current = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap(), watermark);
       await recordSnapshot(historyCtx, current);
     } catch (err) {
       console.error('snapshot-before-restore failed', err);
@@ -279,14 +338,19 @@ export function EditorPage() {
       resolvedHead = await resolveAssetsInHtml(rawHead, dirHandle);
     }
     applyRestoredDeck(snapshotHtml, resolvedHead, meta, resolvedSlides);
-  }, [rawHtml, slides, dirHandle, historyCtx, applyRestoredDeck]);
+  }, [rawHtml, slides, dirHandle, historyCtx, watermark, applyRestoredDeck]);
 
   // Return to the landing page. Confirm first if there are unsaved changes;
   // closeDirectory() clears slides so HomeRoute falls back to LandingPage.
   const doLeaveHome = useCallback(() => {
     setLeaveHomePromptOpen(false);
+    leavingHomeRef.current = true;
+    void clearEditorSession().catch((err) => console.error('clear editor session failed', err));
     revokeAssetCache();
     closeDirectory();
+    window.setTimeout(() => {
+      void clearEditorSession().catch((err) => console.error('clear editor session failed', err));
+    }, 500);
   }, [closeDirectory]);
 
   const requestLeaveHome = useCallback(() => {
@@ -311,6 +375,32 @@ export function EditorPage() {
     const t = setTimeout(() => { void handleSave(); }, 1500);
     return () => clearTimeout(t);
   }, [slides, isDirty, isSaving, dirHandle, fileHandle, handleSave]);
+
+  // Keep enough state to restore the editor after a browser refresh. Returning
+  // home clears this record, so this only affects accidental reloads.
+  useEffect(() => {
+    if (leavingHomeRef.current || !slides.length || !sourceFileName || !deckFileName) return;
+
+    const t = setTimeout(() => {
+      if (leavingHomeRef.current) return;
+      try {
+        const rebuilt = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap(), watermark);
+        void persistEditorSession({
+          mode,
+          sourceFileName,
+          deckFileName,
+          html: rebuilt,
+          watermark,
+          isDirty,
+          lastSavedAt,
+        }).catch((err) => console.error('persist editor session failed', err));
+      } catch (err) {
+        console.error('persist editor session failed', err);
+      }
+    }, 350);
+
+    return () => clearTimeout(t);
+  }, [slides, rawHtml, mode, sourceFileName, deckFileName, watermark, isDirty, lastSavedAt]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -504,7 +594,7 @@ export function EditorPage() {
             <path d="M7.5 3.5v13" />
           </svg>
         </button>
-        <span className="text-[13px] font-semibold truncate max-w-[200px] px-1">{deckFileName}</span>
+        <span className="text-[13px] font-semibold truncate max-w-[200px] px-1 text-white">{deckFileName}</span>
         <span className="text-[11px] shrink-0 select-none" title={lastSavedAt ? t('status.lastSaved', { time: new Date(lastSavedAt).toLocaleTimeString() }) : sourceFileName}>
           {isSaving ? (
             <span className="text-white/55">{t('status.saving')}</span>
@@ -630,7 +720,7 @@ export function EditorPage() {
         <button onClick={() => void handleSave()} disabled={!isDirty} className="hds-bar-btn">
           {t('page.save')}
         </button>
-        <button onClick={() => setExportOpen(true)} className="hds-btn-primary px-4 py-1.5 text-xs rounded-full">
+        <button onClick={() => setExportOpen(true)} className="hds-btn-primary px-4 py-1.5 text-xs">
           {t('page.export')}
         </button>
         <button
@@ -666,8 +756,8 @@ export function EditorPage() {
           {/* Full-bleed canvas area (insets leave room for floating chrome) */}
           <main
             ref={canvasContainerRef}
-            className="absolute flex items-center justify-center canvas-host transition-[left,right] duration-200 ease-out"
-            style={{ top: 80, bottom: 16, left: railOpen ? 224 : 16, right: showInspector ? 328 : 16 }}
+            className={`absolute flex items-center justify-center canvas-host transition-[left,right] duration-200 ease-out ${isInspectorResizing ? 'hds-no-layout-transition' : ''}`}
+            style={{ top: 80, bottom: 16, left: railOpen ? 224 : 16, right: showInspector ? inspectorWidth + 16 : 16 }}
           >
             <div ref={canvasCardRef} className="hds-canvas-card overflow-hidden relative">
               <ScaledCanvas
@@ -701,8 +791,42 @@ export function EditorPage() {
 
           {/* On-demand floating inspector — mounts only when selected and opened */}
           {showInspector && (
-            <div className="absolute right-3 top-20 bottom-3 z-10">
-              <PropertyPane mode={interactionMode} onPatch={handlePatch} onDelete={handleDeleteElement} onZOrder={handleZOrder} floating onClose={() => setInspectorOpen(false)} />
+            <div
+              className={`absolute right-0 top-20 bottom-0 z-10 hds-inspector-drawer-shell ${isInspectorResizing ? 'is-resizing' : ''}`}
+              style={{ width: inspectorWidth }}
+            >
+              <button
+                type="button"
+                className="hds-inspector-resize-handle"
+                aria-label={t('page.resizeInspector')}
+                title={t('page.resizeInspector')}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  setIsInspectorResizing(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                  e.preventDefault();
+                  const maxWidth = Math.max(
+                    INSPECTOR_MIN_WIDTH,
+                    Math.min(INSPECTOR_MAX_WIDTH, window.innerWidth - (railOpen ? 280 : 128)),
+                  );
+                  setInspectorWidth((width) =>
+                    clampInspectorWidth(width + (e.key === 'ArrowLeft' ? 24 : -24), maxWidth),
+                  );
+                }}
+              >
+                <span />
+              </button>
+              <PropertyPane
+                mode={interactionMode}
+                onPatch={handlePatch}
+                onDelete={handleDeleteElement}
+                onZOrder={handleZOrder}
+                onSetLayerRole={handleSetLayerRole}
+                floating
+                onClose={() => setInspectorOpen(false)}
+              />
             </div>
           )}
         </>

@@ -18,7 +18,7 @@ export interface PerspectiveMarqueeProps {
 }
 
 const FONT_FAMILY =
-  "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif";
+  "var(--font-sans), Montserrat, sans-serif";
 
 const DEFAULT_ITEMS = [
   "Vercel",
@@ -34,14 +34,14 @@ const DEFAULT_ITEMS = [
 export function PerspectiveMarquee({
   items = DEFAULT_ITEMS,
   fontSize = 84,
-  color = "#fafafa",
+  color = "var(--background)",
   fontWeight = 700,
   pixelsPerFrame = 2,
   rotateY = -28,
   rotateX = 8,
   perspective = 1200,
-  fadeColor = "#050505",
-  background = "#050505",
+  fadeColor = "var(--foreground)",
+  background = "var(--foreground)",
   speed = 1,
   className,
 }: PerspectiveMarqueeProps) {

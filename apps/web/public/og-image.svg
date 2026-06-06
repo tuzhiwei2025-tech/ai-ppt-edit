@@ -1,47 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
-  <defs>
-    <linearGradient id="og-bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#faf7ff"/>
-      <stop offset="1" stop-color="#efe6ff"/>
-    </linearGradient>
-    <linearGradient id="og-mark" x1="120" y1="150" x2="300" y2="330" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#7e14ff"/>
-      <stop offset="1" stop-color="#a855ff"/>
-    </linearGradient>
-    <linearGradient id="og-panel" x1="636" y1="150" x2="1116" y2="480" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1b1330"/>
-      <stop offset="1" stop-color="#120c20"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="630" fill="url(#og-bg)"/>
-
-  <g transform="translate(80 150) scale(0.34)">
-    <rect width="512" height="512" rx="116" fill="url(#og-mark)"/>
-    <path transform="translate(31 0) skewX(-7)" d="M148 126 L212 126 L300 280 L300 126 L364 126 L364 386 L300 386 L212 232 L212 386 L148 386 Z" fill="#ffffff"/>
-  </g>
-  <text x="80" y="400" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-3" fill="#16121f">Next<tspan fill="#7e14ff">PPT</tspan></text>
-  <text x="84" y="458" font-family="'PingFang SC', 'Hiragino Sans GB', sans-serif" font-size="38" font-weight="600" fill="#3a3344">下一代 PPT，从 HTML 开始</text>
-  <text x="84" y="503" font-family="'PingFang SC', 'Hiragino Sans GB', sans-serif" font-size="24" font-weight="400" fill="#6b6675">点一下就能改字换图，一键导出能投影的 PPT / PDF</text>
-
-  <g>
-    <rect x="636" y="150" width="480" height="330" rx="22" fill="url(#og-panel)" stroke="rgba(126,20,255,0.25)"/>
-    <circle cx="668" cy="184" r="5" fill="#ff5f57"/>
-    <circle cx="690" cy="184" r="5" fill="#febc2e"/>
-    <circle cx="712" cy="184" r="5" fill="#28c840"/>
-    <rect x="664" y="208" width="424" height="244" rx="12" fill="#0d0a16" stroke="rgba(255,255,255,0.06)"/>
-    <rect x="692" y="242" width="210" height="22" rx="6" fill="url(#og-mark)"/>
-    <rect x="684" y="234" width="226" height="38" rx="4" fill="none" stroke="#a855ff" stroke-width="2"/>
-    <g fill="#ffffff" stroke="#a855ff" stroke-width="2">
-      <circle cx="684" cy="234" r="5"/>
-      <circle cx="910" cy="234" r="5"/>
-      <circle cx="684" cy="272" r="5"/>
-      <circle cx="910" cy="272" r="5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none" >
+    <defs>
+      <linearGradient id="og-bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#f8f5f0"/>
+        <stop offset=".68" stop-color="#f0e9e0"/>
+        <stop offset="1" stop-color="#c8e6c9"/>
+      </linearGradient>
+      <pattern id="og-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+        <path d="M48 0H0v48" stroke="#3e2723" stroke-opacity=".06" stroke-width="2"/>
+      </pattern>
+    </defs>
+    <rect width="1200" height="630" fill="url(#og-bg)"/>
+    <rect width="1200" height="630" fill="url(#og-grid)"/>
+    <g transform="translate(72 72)">
+      <g transform="scale(.25)">
+    <defs>
+      <linearGradient id="mark-bg" x1="64" y1="42" x2="448" y2="470" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#1b5e20"/>
+        <stop offset=".58" stop-color="#1c2a1f"/>
+        <stop offset="1" stop-color="#0b160d"/>
+      </linearGradient>
+      <linearGradient id="mark-card" x1="130" y1="126" x2="382" y2="362" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#f0e9e0"/>
+      </linearGradient>
+      <linearGradient id="mark-line" x1="176" y1="328" x2="352" y2="178" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#2e7d32"/>
+        <stop offset="1" stop-color="#c8e6c9"/>
+      </linearGradient>
+      <filter id="mark-shadow" x="84" y="92" width="350" height="320" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+        <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity=".3"/>
+      </filter>
+    </defs>
+    <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#mark-bg)"/>
+    <rect x="22" y="22" width="468" height="468" rx="90" stroke="#c8e6c9" stroke-opacity=".18" stroke-width="6"/>
+    <g filter="url(#mark-shadow)">
+      <rect x="122" y="144" width="240" height="160" rx="28" fill="#c8e6c9" opacity=".32" transform="rotate(-9 242 224)"/>
+      <rect x="158" y="118" width="240" height="160" rx="28" fill="#f0e9e0" opacity=".72" transform="rotate(8 278 198)"/>
+      <rect x="132" y="176" width="248" height="174" rx="30" fill="url(#mark-card)"/>
+      <path d="M176 226h134M176 266h86" stroke="#1c2a1f" stroke-width="18" stroke-linecap="round" opacity=".88"/>
+      <path d="M184 330 348 188" stroke="url(#mark-line)" stroke-width="30" stroke-linecap="round"/>
+      <path d="m336 178 38 18-18 38-18-20-22 22-18-18 22-22-20-18Z" fill="#c8e6c9"/>
     </g>
-    <rect x="692" y="296" width="300" height="12" rx="6" fill="rgba(255,255,255,0.16)"/>
-    <rect x="692" y="322" width="252" height="12" rx="6" fill="rgba(255,255,255,0.16)"/>
-    <rect x="692" y="348" width="288" height="12" rx="6" fill="rgba(255,255,255,0.16)"/>
-    <rect x="692" y="380" width="132" height="52" rx="8" fill="rgba(168,85,255,0.16)" stroke="rgba(168,85,255,0.32)"/>
-    <path d="M708 420 L726 400 L742 416 L756 404 L808 420 Z" fill="rgba(168,85,255,0.5)"/>
-    <circle cx="754" cy="397" r="6" fill="rgba(168,85,255,0.6)"/>
   </g>
-</svg>
+      <text x="154" y="54" font-family="Montserrat, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="42" font-weight="900" fill="#3e2723">AI PPT Edit</text>
+      <text x="156" y="94" font-family="Source Code Pro, Menlo, monospace" font-size="18" font-weight="700" fill="#2e7d32">HTML DECKS TO PPTX / PDF</text>
+    </g>
+    <text x="76" y="286" font-family="Montserrat, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="74" font-weight="900" fill="#3e2723">Edit AI-generated</text>
+    <text x="76" y="370" font-family="Montserrat, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="74" font-weight="900" fill="#2e7d32">decks in browser</text>
+    <text x="80" y="438" font-family="Merriweather, Georgia, serif" font-size="28" fill="#6d4c41">Trim, preview, and export pixel-perfect presentation files.</text>
+    <g transform="translate(760 126) rotate(-5)">
+
+    <rect width="340" height="380" rx="8" fill="#f8f5f0" stroke="#3e2723" stroke-opacity=".22" stroke-width="2"/>
+    <rect width="340" height="42" rx="8" fill="#f0e9e0"/>
+    <circle cx="22" cy="21" r="6" fill="#ff5f57"/>
+    <circle cx="44" cy="21" r="6" fill="#febc2e"/>
+    <circle cx="66" cy="21" r="6" fill="#28c840"/>
+    <text x="94" y="27" font-family="Source Code Pro, Menlo, monospace" font-size="13" font-weight="700" fill="#2e7d32">Export</text>
+    <rect y="42" width="82" height="338" fill="#f0e9e0"/>
+    <rect x="258" y="42" width="82" height="338" fill="#f0e9e0"/>
+    <rect x="18" y="66" width="46" height="28" rx="5" fill="#f8f5f0" stroke="#e0d6c9" stroke-width="2"/><rect x="18" y="108" width="46" height="28" rx="5" fill="#c8e6c9" stroke="#e0d6c9" stroke-width="2"/><rect x="18" y="150" width="46" height="28" rx="5" fill="#f8f5f0" stroke="#e0d6c9" stroke-width="2"/><rect x="18" y="192" width="46" height="28" rx="5" fill="#f8f5f0" stroke="#e0d6c9" stroke-width="2"/><rect x="18" y="234" width="46" height="28" rx="5" fill="#f8f5f0" stroke="#e0d6c9" stroke-width="2"/><rect x="18" y="276" width="46" height="28" rx="5" fill="#f8f5f0" stroke="#e0d6c9" stroke-width="2"/>
+    <rect x="108" y="95" width="124" height="72" rx="7" fill="#1c2a1f"/>
+    <rect x="126" y="117" width="71.92" height="18" rx="4" fill="#c8e6c9"/>
+    <rect x="126" y="151" width="89.28" height="8" rx="4" fill="#ffffff" opacity=".58"/>
+    <rect x="126" y="171" width="62" height="8" rx="4" fill="#ffffff" opacity=".32"/>
+    <rect x="187.36" y="126.68" width="28.52" height="28.52" rx="8" fill="#2e7d32"/>
+    <path d="M193.56 133.16h14.879999999999999M201 128.84v14.879999999999999" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+    <rect x="276" y="70" width="46" height="12" rx="6" fill="#3e2723" opacity=".18"/>
+    <rect x="276" y="102" width="28" height="10" rx="5" fill="#2e7d32" opacity=".72"/>
+    <rect x="276" y="132" width="38" height="10" rx="5" fill="#3e2723" opacity=".14"/>
+    <rect x="276" y="308" width="46" height="30" rx="6" fill="#2e7d32"/>
+
+    </g>
+  </svg>

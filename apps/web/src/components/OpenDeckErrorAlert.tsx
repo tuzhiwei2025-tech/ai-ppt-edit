@@ -1,4 +1,5 @@
 import { Trans, useTranslation } from 'react-i18next';
+import { BrutalButton } from './ui/brutal-button.js';
 
 interface Props {
   error: string;
@@ -9,9 +10,9 @@ interface Props {
   scrollAnchor?: boolean;
 }
 
-const linkBtn = 'hds-open-error-link';
+const linkBtn = 'hds-open-error-link px-2 py-1 align-baseline text-xs';
 
-/** Shown when opening a folder/HTML fails — especially missing `section.slide`. */
+/** Shown when opening a folder/HTML fails — especially missing supported platform slide roots. */
 export function OpenDeckErrorAlert({
   error,
   formatError,
@@ -34,7 +35,16 @@ export function OpenDeckErrorAlert({
             i18nKey="open.formatBrief"
             components={{
               code: <code className="hds-open-error-code" />,
-              link: <button type="button" className={linkBtn} onClick={onGoToGuide} />,
+              link: (
+                <BrutalButton
+                  type="button"
+                  variant="secondary"
+                  hasBorder={false}
+                  hasShadow={false}
+                  className={linkBtn}
+                  onClick={onGoToGuide}
+                />
+              ),
             }}
           />
         </p>

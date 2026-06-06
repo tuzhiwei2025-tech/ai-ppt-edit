@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ArrowDown, ArrowUp, Copy, Trash2, type LucideIcon } from 'lucide-react';
 import { useDeckStore } from '../store/deckStore.js';
 import { cn } from '../lib/cn.js';
 
@@ -14,7 +15,7 @@ function SlideThumbnail({ sectionHtml, headHtml }: { sectionHtml: string; headHt
 ${headHtml}
 <style>
   html,body{width:1280px;height:720px;overflow:hidden;margin:0;padding:0;display:block;}
-  section[class~="slide"]{width:1280px!important;min-height:720px!important;max-height:720px!important;}
+  div[class~="slide"],div[class~="slide-container"]{width:1280px!important;min-height:720px!important;max-height:720px!important;}
 </style>
 </head><body>${sectionHtml}</body></html>`;
 
@@ -110,11 +111,11 @@ export function SlideListPane({ floating = false }: { floating?: boolean } = {})
           </span>
 
           {/* Hover actions */}
-          <div className="absolute right-1.5 top-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <ActionBtn title={t('slideList.moveUp')} disabled={idx === 0} onClick={() => reorderSlides(idx, idx - 1)}>↑</ActionBtn>
-            <ActionBtn title={t('slideList.moveDown')} disabled={idx === slides.length - 1} onClick={() => reorderSlides(idx, idx + 1)}>↓</ActionBtn>
-            <ActionBtn title={t('slideList.duplicate')} onClick={() => duplicateSlide(slide.id)}>⧉</ActionBtn>
-            <ActionBtn title={t('slideList.delete')} disabled={slides.length <= 1} danger onClick={() => deleteSlide(slide.id)}>✕</ActionBtn>
+          <div className="absolute right-1.5 top-1.5 flex gap-1 rounded-lg bg-black/20 p-0.5 opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100">
+            <ActionBtn icon={ArrowUp} title={t('slideList.moveUp')} disabled={idx === 0} onClick={() => reorderSlides(idx, idx - 1)} />
+            <ActionBtn icon={ArrowDown} title={t('slideList.moveDown')} disabled={idx === slides.length - 1} onClick={() => reorderSlides(idx, idx + 1)} />
+            <ActionBtn icon={Copy} title={t('slideList.duplicate')} onClick={() => duplicateSlide(slide.id)} />
+            <ActionBtn icon={Trash2} title={t('slideList.delete')} disabled={slides.length <= 1} danger onClick={() => deleteSlide(slide.id)} />
           </div>
         </div>
       ))}
@@ -123,9 +124,9 @@ export function SlideListPane({ floating = false }: { floating?: boolean } = {})
 }
 
 function ActionBtn({
-  children, title, onClick, disabled, danger,
+  icon: Icon, title, onClick, disabled, danger,
 }: {
-  children: React.ReactNode;
+  icon: LucideIcon;
   title: string;
   onClick: () => void;
   disabled?: boolean;
@@ -133,15 +134,22 @@ function ActionBtn({
 }) {
   return (
     <button
+      type="button"
       title={title}
+      aria-label={title}
       disabled={disabled}
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       className={cn(
-        'h-5 min-w-5 px-1 rounded-md bg-white/85 backdrop-blur border border-[var(--rule)] text-[10px] leading-none flex items-center justify-center shadow-sm transition-colors disabled:opacity-30',
-        danger ? 'text-red-500 hover:bg-red-50' : 'text-[var(--slate)] hover:bg-[var(--cobalt-lt)]',
+        'flex h-7 w-7 items-center justify-center rounded-lg border border-white/20 bg-white/90 text-[var(--slate)] shadow-[0_2px_8px_rgba(0,0,0,0.16)] backdrop-blur transition duration-150',
+        'hover:-translate-y-0.5 hover:bg-white hover:text-[var(--system-blue)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.2)]',
+        'active:translate-y-0 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--system-blue)] focus-visible:ring-offset-1',
+        'disabled:pointer-events-none disabled:opacity-35 disabled:shadow-none',
+        danger
+          ? 'text-red-500 hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-500'
+          : '',
       )}
     >
-      {children}
+      <Icon aria-hidden="true" strokeWidth={2.15} className="h-4 w-4" />
     </button>
   );
 }

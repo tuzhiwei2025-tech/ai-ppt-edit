@@ -27,8 +27,8 @@ export interface AssetEntry {
   sha1: string;
 }
 
-/** HDS requires each slide to be a <section class="slide"> at 1280×720 */
+/** HDS uses div-based slide roots at 1280x720. */
 export const SLIDE_WIDTH = 1280;
 export const SLIDE_HEIGHT = 720;
-/** Matches <section class="slide"> and <section class="slide p1 ..."> */
-export const SLIDE_SELECTOR = 'section[class~="slide"]';
+/** Matches platform-style <div class="slide"> and <div class="slide-container"> roots. */
+export const SLIDE_SELECTOR = 'div[class~="slide"],div[class~="slide-container"]';

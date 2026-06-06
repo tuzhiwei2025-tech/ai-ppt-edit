@@ -147,7 +147,7 @@ export async function screenshotSlides(
       } else {
         // Fallback: viewport screenshot
         await page.evaluate((idx: number) => {
-          const slides = document.querySelectorAll<HTMLElement>('section[class~="slide"]');
+          const slides = document.querySelectorAll<HTMLElement>('div[class~="slide"],div[class~="slide-container"]');
           slides[idx]?.scrollIntoView({ behavior: 'instant' });
         }, ordinal - 1);
         await new Promise((r) => setTimeout(r, 80));

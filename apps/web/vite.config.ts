@@ -4,6 +4,7 @@ import { defineConfig, transformWithEsbuild, type Plugin } from 'vite';
 import type {} from 'vite-react-ssg';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { codeInspectorPlugin } from 'code-inspector-plugin';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -36,7 +37,7 @@ function inlineRuntime(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), inlineRuntime()],
+  plugins: [codeInspectorPlugin({ bundler: 'vite' }), react(), tailwindcss(), inlineRuntime()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

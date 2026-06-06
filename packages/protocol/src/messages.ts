@@ -15,10 +15,15 @@ export type HostMessage =
   | DeleteElementMessage
   | SelectElementMessage
   | SetModeMessage
-  | ZOrderMessage;
+  | ZOrderMessage
+  | SetLayerRoleMessage;
 
 /** Canvas interaction mode. `edit` = content editing, `drag` = freeform transform. */
 export type InteractionMode = 'edit' | 'drag';
+
+export type LayerRole = 'background' | 'content' | 'foreground';
+export type LayerRoleSetting = 'auto' | LayerRole;
+export type LayerRoleSource = 'auto' | 'manual';
 
 /**
  * Switch the in-iframe interaction mode. The two modes are strictly exclusive:
@@ -32,7 +37,7 @@ export interface SetModeMessage {
 
 export interface InitMessage {
   type: 'init';
-  /** Serialized <section class="slide"> outer HTML for the current page */
+  /** Serialized slide-root outer HTML for the current page */
   sectionHtml: string;
   /** file:// or blob: base URL so relative asset paths resolve */
   assetsBaseUrl: string;
@@ -98,6 +103,12 @@ export interface ZOrderMessage {
   op: 'front' | 'back' | 'forward' | 'backward';
 }
 
+export interface SetLayerRoleMessage {
+  type: 'set-layer-role';
+  selector: string;
+  role: LayerRoleSetting;
+}
+
 export interface RequestHtmlMessage {
   type: 'request-html';
 }
@@ -150,6 +161,8 @@ export interface SelectMessage {
 export interface LayerInfo {
   index: number;
   count: number;
+  role: LayerRole;
+  roleSource: LayerRoleSource;
 }
 
 export interface SlideRect {
@@ -165,7 +178,7 @@ export interface ClearSelectMessage {
 
 export interface PatchedMessage {
   type: 'patched';
-  /** Full outer HTML of the <section class="slide"> after patch */
+  /** Full outer HTML of the slide root after patch */
   html: string;
 }
 

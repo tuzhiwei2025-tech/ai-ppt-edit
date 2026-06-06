@@ -5,6 +5,7 @@ import { useDeckStore } from '../store/deckStore.js';
 import { rebuildDeckHtmlForExport } from '../fs/adapter.js';
 import { getBlobToPathMap } from '../fs/assetResolver.js';
 import { PrismFluxLoader } from './ui/prism-flux-loader.js';
+import { BrutalButton } from './ui/brutal-button.js';
 
 /**
  * Base URL of the export API. Empty in dev (Vite proxies /v1 to localhost:3000);
@@ -46,6 +47,7 @@ export function ExportDrawer({ open, onClose }: ExportDrawerProps) {
   const slides = useDeckStore((s) => s.slides);
   const rawHtml = useDeckStore((s) => s.rawHtml);
   const dirHandle = useDeckStore((s) => s.dirHandle);
+  const watermark = useDeckStore((s) => s.watermark);
 
   const [format, setFormat] = useState<ExportFormat>('pptx');
   const [resolution, setResolution] = useState<ExportResolution>('1280x720@2x');
@@ -65,7 +67,7 @@ export function ExportDrawer({ open, onClose }: ExportDrawerProps) {
       const formData = new FormData();
       formData.append('format', format);
       formData.append('resolution', resolution);
-      formData.append('watermark', 'off'); // TODO: tie to plan
+      formData.append('watermark', 'on');
       formData.append('pageRange', pageRange);
       formData.append(
         'meta',
@@ -73,7 +75,7 @@ export function ExportDrawer({ open, onClose }: ExportDrawerProps) {
       );
 
       // Rebuild HTML from edited slides; restore blob: → relative paths for Puppeteer
-      const exportHtml = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap());
+      const exportHtml = rebuildDeckHtmlForExport(rawHtml, slides, getBlobToPathMap(), watermark);
       const deckBlob = new Blob([exportHtml], { type: 'text/html' });
       formData.append('files', deckBlob, 'deck.html');
 
@@ -257,13 +259,19 @@ export function ExportDrawer({ open, onClose }: ExportDrawerProps) {
         </div>
 
         <div className="p-5 border-t border-[var(--rule)]">
-          <button
+          <BrutalButton
             onClick={handleExport}
             disabled={exporting}
-            className="hds-btn-primary w-full py-2.5 text-sm font-medium"
+            variant="primary"
+            color={exporting ? '#000' : undefined}
+            textColor={exporting ? '#fff' : undefined}
+            borderColor={exporting ? '#fff' : undefined}
+            hasShadow={!exporting}
+            className="w-full py-2.5 text-sm"
+            style={exporting ? { opacity: 1 } : undefined}
           >
             {exporting ? <PrismFluxLoader compact size={16} speed={4} label={t('exportDrawer.exporting').replace(/…$/, '')} /> : t('exportDrawer.start', { format: format.toUpperCase() })}
-          </button>
+          </BrutalButton>
         </div>
       </aside>
     </>

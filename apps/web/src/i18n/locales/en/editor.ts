@@ -8,6 +8,7 @@ const editor: typeof zh = {
     expandRail: 'Expand page list',
     collapseInspector: 'Collapse inspector',
     expandInspector: 'Expand inspector',
+    resizeInspector: 'Drag to resize inspector',
     inspectorDisabled: 'Inspector (available after selecting an element)',
     undo: 'Undo',
     undoTitle: 'Undo (⌘Z)',
@@ -83,13 +84,27 @@ const editor: typeof zh = {
     bringForward: 'Bring forward',
     sendBackward: 'Send backward',
     layerLabel: 'Layer',
-    layerPosition: '{{index}} of {{count}}',
+    layerPosition: '{{role}} · {{index}} of {{count}}',
     layerHint: 'Reordering lifts it above other elements',
+    layerRole: 'Layer role',
+    layerRoles: {
+      auto: 'Auto',
+      background: 'Background',
+      content: 'Content',
+      foreground: 'Foreground',
+    },
     restoreAutoLayout: 'Restore auto layout',
     deleteElement: 'Delete element',
   },
   imageDrop: {
     hint: 'Drop to insert the image here',
+  },
+  watermark: {
+    label: 'Watermark',
+    text: 'Watermark text',
+    mode: 'Watermark mode',
+    center: 'Center',
+    tiled: 'Tiled',
   },
   exportDrawer: {
     title: 'Export',
@@ -136,18 +151,18 @@ const editor: typeof zh = {
     onlyCurrent: 'Editing the current page HTML only',
     notApplied: '● Not applied',
     apply: 'Apply changes',
-    invalid: 'Invalid: the current page must contain a <section class="slide"> root element',
+    invalid: 'Invalid: the current page must contain a div.slide or div.slide-container root element',
   },
   open: {
     formatBrief:
-      'Not a deck (needs <code>section.slide</code>). Copy the prompt from the <link>guide</link> and have AI generate the file.',
+      'Not a supported platform HTML PPT. This importer only handles one-page HTML files using <code>div.slide</code> or <code>div.slide-container</code>.',
   },
   errors: {
     needPermission: 'Folder access permission is required',
     notFound:
-      'No recognizable slide HTML in this folder. You need at least one <section class="slide"> page.',
+      'No supported platform HTML PPT pages in this folder. Upload a folder containing div.slide or div.slide-container HTML pages.',
     noSlides:
-      'This HTML has no <section class="slide"> pages, so it cannot be opened as a deck.',
+      'This HTML has no supported platform HTML PPT page, so it cannot be opened as a deck.',
     sampleFailed: 'Failed to load the sample template, please try again later',
     dropHtmlOnly: 'Please drop an HTML file or a folder containing HTML.',
   },

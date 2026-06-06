@@ -2,11 +2,30 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGuideNav } from '../hooks/useGuideNav.js';
 import { LanguageSwitcher } from './LanguageSwitcher.js';
+import MenuHoverEffects, { type MenuHoverItem } from './ui/menu-hover-effects.js';
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  onOpenEditor?: () => void;
+};
+
+export function SiteHeader({ onOpenEditor }: SiteHeaderProps) {
   const { t } = useTranslation('landing');
   const { openGuide } = useGuideNav();
   const [scrolled, setScrolled] = useState(false);
+  const navItems: MenuHoverItem[] = [
+    {
+      label: t('nav.editor'),
+      onSelect: onOpenEditor ?? (() => document.getElementById('top')?.scrollIntoView({ behavior: 'smooth' })),
+    },
+    {
+      label: t('newHome.footer.templates'),
+      href: '#templates',
+    },
+    {
+      label: t('nav.guide'),
+      onSelect: () => openGuide('generate'),
+    },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -27,8 +46,8 @@ export function SiteHeader() {
           <span className="hds-wordmark text-sm">AI PPT Edit</span>
         </button>
 
-        <div className="ml-auto flex items-center gap-4 sm:gap-5">
-          <button onClick={() => openGuide('generate')} className="hds-nav-link">{t('nav.guide')}</button>
+        <div className="ml-auto flex items-center gap-3 sm:gap-4">
+          <MenuHoverEffects items={navItems} />
           <LanguageSwitcher />
         </div>
       </div>

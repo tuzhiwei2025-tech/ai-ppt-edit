@@ -76,6 +76,7 @@ flowchart LR
 
 - **Point-and-edit.** Any `<section class="slide">` deck works. Property panel for font, weight, color, align, decoration, links, images.
 - **Edit / Move modes.** Edit = text only, calm. Move = freeform drag, resize, layer order (bring forward, send back) — like native PPT.
+- **Copyable Skill and MCP blocks.** The home page lets visitors copy the project `SKILL.md` and an MCP configuration template directly.
 - **Mermaid, live.** Raw Mermaid source renders in the editor and stays crisp in export.
 - **High-fidelity export.** Image-based PPTX / PDF that matches your HTML. Up to 5120×2880; single page or ranges.
 - **Bilingual UI.** Chinese / English across the site, guide, and editor.
@@ -92,6 +93,21 @@ flowchart LR
 ## Privacy
 
 **During editing, your data never leaves your machine.** Export sends content to a temp worker for a few dozen seconds, then deletes it. Nothing persisted, nothing trained on.
+
+## Skill and MCP service layer
+
+The home page separates two concepts that should not be mixed:
+
+- **Skill** is the current implementation playbook for agents and maintainers. The home page exposes it as a copyable `SKILL.md`; the source lives at [`skills/ai-ppt-edit/SKILL.md`](skills/ai-ppt-edit/SKILL.md).
+- **MCP services** are the future callable tool layer for filesystem workspaces, browser rendering/export, and template registry access. The home page exposes a copyable MCP config template.
+
+The data comes from:
+
+```text
+GET /v1/capabilities
+```
+
+In dev, Vite proxies `/v1/*` to the Fastify API at `http://localhost:3000`. The API intentionally returns a safe product manifest, not your personal MCP config or secrets.
 
 ## Docs
 

@@ -31,8 +31,8 @@ export function useOpenDeck() {
   const openFile = useDeckStore((s) => s.openFile);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** True when the failure was a missing/invalid `section.slide` (drives the
-   *  landing page's format-recovery hint, locale-independently). */
+  /** True when the failure was a missing/invalid supported slide root (drives
+   *  the landing page's format-recovery hint, locale-independently). */
   const [formatError, setFormatError] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
@@ -53,7 +53,7 @@ export function useOpenDeck() {
       }
 
       const { fileName, html } = result;
-      const { meta, headHtml: rawHead, slides: rawSlides } = parseDeck(html);
+      const { meta, headHtml: rawHead, slides: rawSlides } = parseDeck(html, 'import');
       if (!rawSlides.length) {
         setFormatError(true);
         scrollFormatHint = true;
@@ -83,7 +83,7 @@ export function useOpenDeck() {
   const openSingleFile = (fileName: string, html: string) => {
     setError(null);
     setFormatError(false);
-    const { meta, headHtml, slides } = parseDeck(html);
+    const { meta, headHtml, slides } = parseDeck(html, 'import');
     if (!slides.length) {
       setFormatError(true);
       setError(t('errors.noSlides'));

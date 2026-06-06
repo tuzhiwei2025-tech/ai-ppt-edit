@@ -120,19 +120,20 @@ export function AnimatedThemeToggler({
       <motion.button
         className="att-btn"
         onClick={toggle}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.86 }}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         style={{
-          background: "none",
-          border: "none",
+          background: "color-mix(in oklch, var(--foreground) 6%, transparent)",
+          border: "0",
+          boxShadow: "none",
           cursor: "pointer",
-          padding: 6,
+          padding: 4,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "var(--at-ink)",
-          borderRadius: 8,
+          color: "var(--foreground)",
+          borderRadius: 7,
           outline: "none",
           WebkitTapHighlightColor: "transparent",
         }}

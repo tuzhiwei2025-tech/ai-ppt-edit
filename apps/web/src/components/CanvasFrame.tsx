@@ -2,7 +2,7 @@
  * CanvasFrame – renders a single slide in a sandboxed iframe.
  * Communicates with editor-runtime via postMessage.
  */
-import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHandle } from 'react';
 import type { HostMessage, RuntimeMessage } from '@ai-ppt-edit/protocol';
 import RUNTIME_SOURCE from 'virtual:editor-runtime';
 import { useDeckStore } from '../store/deckStore.js';
@@ -12,7 +12,7 @@ export interface CanvasHandle {
 }
 
 interface CanvasFrameProps {
-  /** Outer HTML of the <section class="slide"> */
+  /** Outer HTML of the div-based slide root */
   sectionHtml: string;
   /** Full <head> innerHTML from the original document (styles, fonts, etc.) */
   headHtml?: string;
@@ -34,9 +34,7 @@ export function CanvasFrame({ sectionHtml, headHtml = '', assetsBaseUrl, onMessa
   // source of truth, so in-iframe edits (which echo back as new sectionHtml)
   // must NOT rewrite srcDoc and reload it. External changes (undo/redo/restore/
   // slide switch) remount this component via a `key`, rebuilding srcDoc fresh.
-  const srcDocRef = useRef<string | null>(null);
-  if (srcDocRef.current === null) {
-    srcDocRef.current = `<!doctype html><html><head>
+  const [srcdoc] = useState(() => `<!doctype html><html><head>
 <meta charset="UTF-8">
 <base href="${assetsBaseUrl}">
 ${headHtml}
@@ -51,16 +49,14 @@ ${headHtml}
   /* Remove body-level centering/gap from original layout */
   body{display:block !important;gap:0 !important;padding:0 !important;}
   /* Ensure the extracted slide fills the viewport */
-  section.slide,section[class~="slide"]{
+  div.slide,div[class~="slide"],div[class~="slide-container"]{
     width:1280px !important;
     min-height:720px !important;
     max-height:720px !important;
     flex-shrink:0 !important;
   }
 </style>
-</head><body>${sectionHtml}<script data-hds-runtime>${RUNTIME_SOURCE}${'<'}/script></body></html>`;
-  }
-  const srcdoc = srcDocRef.current;
+</head><body>${sectionHtml}<script data-hds-runtime>${RUNTIME_SOURCE}${'<'}/script></body></html>`);
 
   useEffect(() => {
     const handler = (evt: MessageEvent) => {
@@ -69,17 +65,16 @@ ${headHtml}
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, []);
-
-  const postToRuntime = useCallback((msg: HostMessage) => {
-    iframeRef.current?.contentWindow?.postMessage(msg, '*');
-  }, []);
+  }, [iframeRef]);
 
   // Expose postToRuntime via data attribute so parent can call it
   useEffect(() => {
     const el = iframeRef.current;
-    if (el) (el as HTMLIFrameElement & { postToRuntime?: typeof postToRuntime }).postToRuntime = postToRuntime;
-  }, [postToRuntime]);
+    if (!el) return;
+    (el as HTMLIFrameElement & { postToRuntime?: (msg: HostMessage) => void }).postToRuntime = (msg) => {
+      el.contentWindow?.postMessage(msg, '*');
+    };
+  }, [iframeRef]);
 
   return (
     <iframe

@@ -10,7 +10,17 @@
  * Communicates with AppHost via postMessage.
  */
 
-import type { HostMessage, RuntimeMessage, PatchOp, StyleSnapshot, LayerInfo, SlideRect } from '@ai-ppt-edit/protocol';
+import type {
+  HostMessage,
+  RuntimeMessage,
+  PatchOp,
+  StyleSnapshot,
+  LayerInfo,
+  SlideRect,
+  LayerRole,
+  LayerRoleSetting,
+  LayerRoleSource,
+} from '@ai-ppt-edit/protocol';
 
 const TARGET = window.parent as Window;
 
@@ -76,10 +86,23 @@ let selectedEl: HTMLElement | null = null;
 // exclusive: 'edit' = click-select + double-click inline editing (no handles,
 // no dragging); 'drag' = freeform move/resize/delete (handles, no inline edit).
 let interactionMode: 'edit' | 'drag' = 'edit';
+const SLIDE_ROOT_SELECTOR = 'div[class~="slide"],div[class~="slide-container"]';
+const WATERMARK_SELECTOR = '[data-hds-watermark]';
+const LAYER_ROLE_ATTR = 'data-hds-layer-role';
+const ROLE_ORDER: LayerRole[] = ['background', 'content', 'foreground'];
+const ROLE_Z_BASE: Record<LayerRole, number> = {
+  background: 1000,
+  content: 5000,
+  foreground: 9000,
+};
 
 /** A positioned/free element carries a stable id (inserted images or detached shapes). */
 function isPositioned(el: Element | null): el is HTMLElement {
   return el instanceof HTMLElement && el.hasAttribute('data-hds-id');
+}
+
+function watermarkRoot(start: Element | null): HTMLElement | null {
+  return start instanceof Element ? start.closest<HTMLElement>(WATERMARK_SELECTOR) : null;
 }
 
 function ensureOverlay() {
@@ -124,11 +147,16 @@ function ensureOverlay() {
 function showOverlay(el: Element) {
   ensureOverlay();
   const r = el.getBoundingClientRect();
+  const role = el instanceof HTMLElement ? layerRole(el) : 'content';
+  const accent = role === 'background' ? '#7a8797' : role === 'foreground' ? '#f59e0b' : '#007aff';
+  const glow = role === 'background' ? '0 0 0 1px rgba(255,255,255,0.35)' : '0 0 0 1px rgba(255,255,255,0.6)';
   Object.assign(overlay!.style, {
     left: `${r.left}px`,
     top: `${r.top}px`,
     width: `${r.width}px`,
     height: `${r.height}px`,
+    borderColor: accent,
+    boxShadow: glow,
     display: 'block',
   });
   // Handles only exist in drag mode; in edit mode we just draw the selection
@@ -146,6 +174,7 @@ function showOverlay(el: Element) {
       h.style.display = 'block';
       h.style.left = `${corners[corner][0]}px`;
       h.style.top = `${corners[corner][1]}px`;
+      h.style.borderColor = accent;
     } else {
       h.style.display = 'none';
     }
@@ -192,7 +221,7 @@ function deselect() {
 // ─── Shape resolution & detach (drag mode) ───────────────────────────────────
 
 function sectionEl(): HTMLElement {
-  return (document.querySelector('section.slide') as HTMLElement | null) ?? document.body;
+  return (document.querySelector(SLIDE_ROOT_SELECTOR) as HTMLElement | null) ?? document.body;
 }
 
 /** The containing block a free element is positioned against (its offsetParent). */
@@ -218,48 +247,92 @@ function genId(): string {
   return 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-/**
- * Stacking base for free shapes. Kept high so detached elements / inserted
- * images float above ordinary (and most positioned) deck content. Normalised
- * shapes occupy a contiguous band starting here: Z_BASE, Z_BASE+1, …
- */
-const Z_BASE = 9990;
-
 /** Every free (positioned, id-carrying) shape on the slide. */
 function freeShapes(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-hds-id]'));
 }
 
-/** Next free stacking order above existing free shapes / inserted images. */
-function nextZ(): number {
-  let max = Z_BASE - 1;
-  freeShapes().forEach((n) => {
-    const z = parseInt(n.style.zIndex || '0', 10);
-    if (!Number.isNaN(z)) max = Math.max(max, z);
-  });
-  return max + 1;
+function isLayerRole(value: string | null): value is LayerRole {
+  return value === 'background' || value === 'content' || value === 'foreground';
 }
 
-/**
- * Reassign every free shape a unique, contiguous z-index (Z_BASE + position),
- * ordered by current z-index then DOM order. Collapses ties / runaway values
- * into a clean, gap-free stack and returns the elements in stacking order
- * (bottom → top), which is the single source of truth for layer operations.
- */
-function normalizeZ(): HTMLElement[] {
-  const shapes = freeShapes();
+function manualLayerRole(el: HTMLElement): LayerRole | null {
+  const role = el.getAttribute(LAYER_ROLE_ATTR);
+  return isLayerRole(role) ? role : null;
+}
+
+function layerRoleSource(el: HTMLElement): LayerRoleSource {
+  return manualLayerRole(el) ? 'manual' : 'auto';
+}
+
+function inferLayerRole(el: HTMLElement): LayerRole {
+  const manual = manualLayerRole(el);
+  if (manual) return manual;
+
+  const tag = el.tagName.toLowerCase();
+  const cs = getComputedStyle(el);
+  const rect = el.getBoundingClientRect();
+  const slideArea = SLIDE_W * SLIDE_H;
+  const areaRatio = (rect.width * rect.height) / slideArea;
+  const nearLeft = rect.left <= 32;
+  const nearTop = rect.top <= 32;
+  const nearRight = rect.right >= SLIDE_W - 32;
+  const nearBottom = rect.bottom >= SLIDE_H - 32;
+  const edgeHits = [nearLeft, nearTop, nearRight, nearBottom].filter(Boolean).length;
+  const hasBackgroundPaint = cs.backgroundImage !== 'none' || cs.backgroundColor !== 'rgba(0, 0, 0, 0)';
+  const classHint = `${el.id} ${el.className}`.toLowerCase();
+  const backgroundHint = /(^|[-_\s])(bg|background|backdrop|wallpaper|cover|hero|texture|frame)([-_\s]|$)/.test(classHint);
+
+  if (areaRatio >= 0.72 && edgeHits >= 3) return 'background';
+  if ((tag === 'img' || tag === 'picture') && areaRatio >= 0.55 && edgeHits >= 2) return 'background';
+  if (hasBackgroundPaint && areaRatio >= 0.55 && edgeHits >= 2) return 'background';
+  if (backgroundHint && areaRatio >= 0.35) return 'background';
+
+  // Tiny corner badges / logos usually sit above content. Larger ordinary
+  // images stay in the content band unless the user marks them as foreground.
+  const nearCorner = (nearLeft || nearRight) && (nearTop || nearBottom);
+  if (areaRatio <= 0.04 && nearCorner && (tag === 'img' || tag === 'svg' || backgroundHint)) return 'foreground';
+
+  return 'content';
+}
+
+function layerRole(el: HTMLElement): LayerRole {
+  return inferLayerRole(el);
+}
+
+function compareByZThenDom(shapes: HTMLElement[]): HTMLElement[] {
   const domOrder = new Map<HTMLElement, number>();
   shapes.forEach((el, i) => domOrder.set(el, i));
-  shapes.sort((a, b) => {
+  return shapes.sort((a, b) => {
     const za = parseInt(a.style.zIndex || '0', 10) || 0;
     const zb = parseInt(b.style.zIndex || '0', 10) || 0;
     if (za !== zb) return za - zb;
     return (domOrder.get(a) ?? 0) - (domOrder.get(b) ?? 0);
   });
-  shapes.forEach((el, i) => {
-    el.style.zIndex = String(Z_BASE + i);
+}
+
+/** Next stacking order inside a role band. */
+function nextZ(role: LayerRole): number {
+  const order = normalizeZ(role);
+  return ROLE_Z_BASE[role] + order.length;
+}
+
+/**
+ * Reassign free shapes into role-specific z-index bands. Passing a role limits
+ * normalisation to that band so layer buttons never move backgrounds above
+ * content unless the user changes the role first.
+ */
+function normalizeZ(role?: LayerRole): HTMLElement[] {
+  const roles = role ? [role] : ROLE_ORDER;
+  let selectedOrder: HTMLElement[] = [];
+  roles.forEach((r) => {
+    const order = compareByZThenDom(freeShapes().filter((el) => layerRole(el) === r));
+    order.forEach((el, i) => {
+      el.style.zIndex = String(ROLE_Z_BASE[r] + i);
+    });
+    if (role === r) selectedOrder = order;
   });
-  return shapes;
+  return role ? selectedOrder : compareByZThenDom(freeShapes());
 }
 
 /**
@@ -272,7 +345,8 @@ function zOrder(selector: string, op: 'front' | 'back' | 'forward' | 'backward')
   if (!(el instanceof HTMLElement)) return;
   if (!isPositioned(el)) detach(el);
 
-  let order = normalizeZ();
+  const role = layerRole(el);
+  const order = normalizeZ(role);
   const i = order.indexOf(el);
   if (i === -1) return;
   const last = order.length - 1;
@@ -287,7 +361,7 @@ function zOrder(selector: string, op: 'front' | 'back' | 'forward' | 'backward')
     order.splice(i, 1);
     order.splice(target, 0, el);
     order.forEach((node, idx) => {
-      node.style.zIndex = String(Z_BASE + idx);
+      node.style.zIndex = String(ROLE_Z_BASE[role] + idx);
     });
   }
 
@@ -295,17 +369,30 @@ function zOrder(selector: string, op: 'front' | 'back' | 'forward' | 'backward')
   send({ type: 'patched', html: serializeSection() });
 }
 
+function setLayerRole(selector: string, role: LayerRoleSetting) {
+  const el = document.querySelector(selector);
+  if (!(el instanceof HTMLElement)) return;
+  if (!isPositioned(el)) detach(el);
+  if (role === 'auto') el.removeAttribute(LAYER_ROLE_ATTR);
+  else el.setAttribute(LAYER_ROLE_ATTR, role);
+  normalizeZ();
+  selectElement(el);
+  send({ type: 'patched', html: serializeSection() });
+}
+
 /** Stacking position of a free element among its peers (1-based), else undefined. */
 function layerInfo(el: HTMLElement): LayerInfo | undefined {
   if (!isPositioned(el)) return undefined;
-  const order = freeShapes().sort((a, b) => {
-    const za = parseInt(a.style.zIndex || '0', 10) || 0;
-    const zb = parseInt(b.style.zIndex || '0', 10) || 0;
-    return za - zb;
-  });
+  const role = layerRole(el);
+  const order = compareByZThenDom(freeShapes().filter((shape) => layerRole(shape) === role));
   const idx = order.indexOf(el);
   if (idx === -1) return undefined;
-  return { index: idx + 1, count: order.length };
+  return {
+    index: idx + 1,
+    count: order.length,
+    role,
+    roleSource: layerRoleSource(el),
+  };
 }
 
 /** Element geometry in slide-native coordinates (offset metrics, unscaled). */
@@ -318,7 +405,17 @@ function slideRect(el: HTMLElement): SlideRect {
   };
 }
 
-const REPLACED_TAGS = new Set(['img', 'svg', 'video', 'canvas', 'figure', 'picture']);
+const REPLACED_TAGS = new Set(['img', 'svg', 'video', 'canvas', 'figure', 'picture', 'iframe', 'object', 'embed']);
+const ATOMIC_TAGS = new Set(['canvas', 'iframe', 'object', 'embed']);
+
+function atomicComponent(start: Element | null): HTMLElement | null {
+  if (!(start instanceof HTMLElement)) return null;
+  const marked = start.closest<HTMLElement>('[data-hds-atomic]');
+  if (marked && marked !== sectionEl() && marked !== document.body) return marked;
+  const tag = start.tagName.toLowerCase();
+  if (ATOMIC_TAGS.has(tag)) return start;
+  return null;
+}
 
 /**
  * In drag mode we select a block-level *shape*, not the raw inline leaf the user
@@ -326,6 +423,9 @@ const REPLACED_TAGS = new Set(['img', 'svg', 'video', 'canvas', 'figure', 'pictu
  * element, stopping at the section.
  */
 function resolveShape(start: Element | null): HTMLElement | null {
+  const atomic = atomicComponent(start);
+  if (atomic) return atomic;
+
   const sec = sectionEl();
   let el = start instanceof HTMLElement ? start : null;
   while (el && el !== sec && el !== document.body) {
@@ -336,6 +436,43 @@ function resolveShape(start: Element | null): HTMLElement | null {
     el = el.parentElement;
   }
   return el && el !== document.body ? el : (start instanceof HTMLElement ? start : null);
+}
+
+function shapeHitScore(el: HTMLElement, domIndex: number): [number, number, number, number, number] {
+  const r = el.getBoundingClientRect();
+  const area = Math.max(1, r.width * r.height);
+  const areaRatio = area / (SLIDE_W * SLIDE_H);
+  const role = layerRole(el);
+  const roleRank = role === 'foreground' ? 2 : role === 'content' ? 1 : 0;
+  // Large content wrappers can still cover the page even when their inferred
+  // role is not "background"; keep them selectable, but only after tighter hits.
+  const largeSurfacePenalty = role === 'background' || areaRatio >= 0.45 ? 1 : 0;
+  const z = parseInt(el.style.zIndex || '0', 10) || 0;
+  return [largeSurfacePenalty, -roleRank, -z, area, -domIndex];
+}
+
+function resolveShapeAtPoint(start: Element | null, x: number, y: number): HTMLElement | null {
+  const fallback = resolveShape(start);
+  const domOrder = new Map<HTMLElement, number>();
+  const candidates = freeShapes().filter((el, i) => {
+    domOrder.set(el, i);
+    if (watermarkRoot(el)) return false;
+    if (el === sectionEl() || el === document.body) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  });
+
+  if (!candidates.length) return fallback;
+
+  candidates.sort((a, b) => {
+    const as = shapeHitScore(a, domOrder.get(a) ?? 0);
+    const bs = shapeHitScore(b, domOrder.get(b) ?? 0);
+    for (let i = 0; i < as.length; i++) {
+      if (as[i] !== bs[i]) return as[i] - bs[i];
+    }
+    return 0;
+  });
+  return candidates[0] ?? fallback;
 }
 
 type ShapeKind = 'image' | 'text' | 'block';
@@ -409,7 +546,7 @@ function detach(el: HTMLElement) {
   insertPlaceholder(el, id);
   el.style.position = 'absolute';
   el.style.margin = '0';
-  el.style.zIndex = String(nextZ());
+  el.style.zIndex = String(nextZ(layerRole(el)));
   // Now the containing block is resolved: anchor the element to its actual
   // offsetParent so it stays exactly where it visually was (no jump on grab).
   const p = freeParent(el);
@@ -435,6 +572,7 @@ function isLayoutBlock(el: Element): el is HTMLElement {
   if (!(el instanceof HTMLElement)) return false;
   const tag = el.tagName.toLowerCase();
   if (tag === 'script' || tag === 'style' || tag === 'template') return false;
+  if (watermarkRoot(el)) return false;
   if (el.hasAttribute('data-hds-placeholder')) return false;
   const d = getComputedStyle(el).display;
   if (d === 'none' || d === 'contents' || d.startsWith('inline')) return false;
@@ -442,8 +580,13 @@ function isLayoutBlock(el: Element): el is HTMLElement {
 }
 
 function collectFrom(node: HTMLElement, boxes: HTMLElement[]) {
+  if (watermarkRoot(node)) return;
   // Already-free shapes are atomic: never break them apart.
   if (node.hasAttribute('data-hds-id')) {
+    boxes.push(node);
+    return;
+  }
+  if (node.hasAttribute('data-hds-atomic')) {
     boxes.push(node);
     return;
   }
@@ -629,6 +772,7 @@ interface MermaidApi {
 function applyPatch(selector: string, ops: PatchOp[]): boolean {
   const el = document.querySelector(selector);
   if (!el) return false;
+  if (watermarkRoot(el)) return false;
   for (const op of ops) {
     if (op.kind === 'text') {
       el.textContent = op.value;
@@ -679,7 +823,7 @@ function cleanup(root: ParentNode): void {
 }
 
 function serializeSection(): string {
-  const sec = document.querySelector('section.slide') ?? document.body;
+  const sec = document.querySelector(SLIDE_ROOT_SELECTOR) ?? document.body;
   const clone = sec.cloneNode(true) as HTMLElement;
   cleanup(clone);
   clone
@@ -723,6 +867,42 @@ function finishInlineEdit(commit: boolean) {
   send({ type: 'patched', html: serializeSection() });
 }
 
+function isTextEditTarget(el: HTMLElement): boolean {
+  if (watermarkRoot(el)) return false;
+  if (atomicComponent(el)) return false;
+  if (!TEXT_TAGS.has(el.tagName.toLowerCase())) return false;
+  if (!(el.textContent ?? '').trim()) return false;
+  // After drag-mode detach, some sizeable wrapper divs become selectable free
+  // shapes. Do not inline-edit a wrapper that contains block children; find the
+  // actual text leaf under the pointer instead.
+  if (el.tagName.toLowerCase() === 'div') {
+    const hasBlockChild = Array.from(el.children).some(isLayoutBlock);
+    if (hasBlockChild) return false;
+  }
+  return true;
+}
+
+function resolveTextEditTarget(start: Element | null, x: number, y: number): HTMLElement | null {
+  const direct = start instanceof HTMLElement ? start : null;
+  if (direct && isTextEditTarget(direct)) return direct;
+
+  const scope = direct?.closest<HTMLElement>('[data-hds-id]') ?? direct;
+  if (!scope) return null;
+  const selector = Array.from(TEXT_TAGS).join(',');
+  const candidates = Array.from(scope.querySelectorAll<HTMLElement>(selector))
+    .filter(isTextEditTarget)
+    .filter((el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    })
+    .sort((a, b) => {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return ar.width * ar.height - br.width * br.height;
+    });
+  return candidates[0] ?? null;
+}
+
 // ─── Message handler ─────────────────────────────────────────────────────────
 
 window.addEventListener('message', async (evt) => {
@@ -751,11 +931,12 @@ window.addEventListener('message', async (evt) => {
   }
 
   if (msg.type === 'insert-image') {
-    const sec = (document.querySelector('section.slide') as HTMLElement | null) ?? document.body;
+    const sec = (document.querySelector(SLIDE_ROOT_SELECTOR) as HTMLElement | null) ?? document.body;
     // Absolute children need a positioned ancestor; most decks already are.
     if (getComputedStyle(sec).position === 'static') sec.style.position = 'relative';
     const img = document.createElement('img');
     img.setAttribute('data-hds-id', msg.id);
+    img.setAttribute(LAYER_ROLE_ATTR, 'foreground');
     img.src = msg.src;
     img.draggable = false;
     Object.assign(img.style, {
@@ -766,7 +947,7 @@ window.addEventListener('message', async (evt) => {
       height: 'auto',
       // Float above deck content so the image stays clickable/draggable and is
       // not swallowed by positioned siblings (frames, overlays, etc.).
-      zIndex: '9999',
+      zIndex: String(nextZ('foreground')),
       userSelect: 'none',
     });
     sec.appendChild(img);
@@ -779,6 +960,7 @@ window.addEventListener('message', async (evt) => {
     if (msg.mode === interactionMode) return; // idempotent: don't clear selection
     interactionMode = msg.mode;
     document.body.setAttribute('data-hds-mode', interactionMode);
+    suppressNextClick = false;
     if (editingEl) finishInlineEdit(true);
     // Entering drag mode lifts every content box out of flow so the whole slide
     // becomes freely stackable/movable — z-order then has an immediate effect.
@@ -791,6 +973,11 @@ window.addEventListener('message', async (evt) => {
 
   if (msg.type === 'z-order') {
     zOrder(msg.selector, msg.op);
+    return;
+  }
+
+  if (msg.type === 'set-layer-role') {
+    setLayerRole(msg.selector, msg.role);
     return;
   }
 
@@ -852,16 +1039,25 @@ document.addEventListener(
       deselect();
       return;
     }
+    if (watermarkRoot(target)) {
+      deselect();
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
+    const atomic = atomicComponent(target);
+    if (atomic) {
+      selectElement(atomic);
+      return;
+    }
     // Edit mode selects the clicked leaf (fine-grained text/style editing);
     // drag mode selects the enclosing block-level shape.
     if (interactionMode === 'drag') {
-      const shape = resolveShape(target);
+      const shape = resolveShapeAtPoint(target, e.clientX, e.clientY);
       if (shape && shape !== sectionEl() && shape !== document.body) selectElement(shape);
       else deselect();
     } else {
-      selectElement(target);
+      selectElement(resolveTextEditTarget(target, e.clientX, e.clientY) ?? target);
     }
   },
   true,
@@ -872,12 +1068,15 @@ document.addEventListener(
   (e) => {
     if (interactionMode !== 'edit') return; // inline editing is edit-mode only
     const target = e.target as HTMLElement;
-    if (!target || !TEXT_TAGS.has(target.tagName.toLowerCase())) return;
+    if (watermarkRoot(target)) return;
+    if (atomicComponent(target)) return;
+    const textTarget = resolveTextEditTarget(target, e.clientX, e.clientY);
+    if (!textTarget) return;
     // Skip elements that only wrap other block content (let user pick the leaf)
     e.preventDefault();
     e.stopPropagation();
     clearOverlay();
-    beginInlineEdit(target);
+    beginInlineEdit(textTarget);
   },
   true,
 );
@@ -919,12 +1118,6 @@ let suppressNextClick = false;
 
 function round2(n: number) {
   return Math.round(n * 100) / 100;
-}
-
-/** Read the uniform scale from an inline `transform: scale(n)` (1 if none). */
-function currentScale(el: HTMLElement): number {
-  const m = /scale\(([-\d.]+)\)/.exec(el.style.transform);
-  return m ? parseFloat(m[1]) : 1;
 }
 
 function beginDrag(mode: 'move' | 'resize', el: HTMLElement, e: PointerEvent, corner?: Corner) {
@@ -1084,6 +1277,7 @@ document.addEventListener(
     if (editingEl) return;
     if (interactionMode !== 'drag') return; // edit mode selects via click only
     const target = e.target as Element;
+    if (watermarkRoot(target)) return;
     const handle = target.closest?.('[data-hds-handle]') as HTMLElement | null;
     if (handle && selectedEl) {
       e.preventDefault();
@@ -1092,10 +1286,12 @@ document.addEventListener(
       return;
     }
     const shape = resolveShape(target);
-    if (shape && shape !== sectionEl() && shape !== document.body) {
+    const hitShape = resolveShapeAtPoint(target, e.clientX, e.clientY);
+    const resolved = hitShape ?? shape;
+    if (resolved && resolved !== sectionEl() && resolved !== document.body) {
       e.preventDefault();
-      if (selectedEl !== shape) selectElement(shape);
-      beginDrag('move', shape, e);
+      if (selectedEl !== resolved) selectElement(resolved);
+      beginDrag('move', resolved, e);
     }
   },
   true,
@@ -1166,6 +1362,7 @@ document.addEventListener(
   style.setAttribute('data-hds-style', '');
   style.textContent =
     '[data-hds-id]{touch-action:none;-webkit-user-drag:none;}' +
+    '[data-hds-watermark]{pointer-events:none!important;user-select:none!important;-webkit-user-select:none!important;}' +
     // Move/resize affordances are scoped to drag mode so edit mode stays calm.
     '[data-hds-mode="drag"] [data-hds-id]{cursor:move;}' +
     '[data-hds-mode="drag"] [data-hds-id]:hover{outline:1px dashed rgba(0,122,255,0.5);outline-offset:1px;}';

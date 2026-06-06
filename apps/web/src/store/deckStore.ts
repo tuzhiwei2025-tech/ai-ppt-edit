@@ -2,9 +2,15 @@ import { create } from 'zustand';
 import type { DeckMeta, SlideEntry } from '@ai-ppt-edit/protocol';
 import type { StyleSnapshot, LayerInfo, SlideRect } from '@ai-ppt-edit/protocol';
 import { ulid } from '../lib/ulid.js';
+import {
+  DEFAULT_WATERMARK,
+  applyWatermarkToSlideHtml,
+  normalizeWatermarkConfig,
+  type WatermarkConfig,
+} from '../lib/watermark.js';
 
 export interface SlideState extends SlideEntry {
-  /** Serialised outer HTML of <section class="slide"> */
+  /** Serialised outer HTML of the slide root */
   html: string;
   /** Data-URL thumbnail (generated after first render) */
   thumbnail: string | null;
@@ -53,6 +59,7 @@ export interface DeckStore {
   currentSlideId: string | null;
   selection: SelectionState | null;
   viewMode: 'visual' | 'code';
+  watermark: WatermarkConfig;
 
   // ── Save state ───────────────────────────────────────────
   isDirty: boolean;
@@ -86,14 +93,29 @@ export interface DeckStore {
   setCurrentSlide: (id: string) => void;
   setSelection: (sel: SelectionState | null) => void;
   setViewMode: (mode: 'visual' | 'code') => void;
+  setWatermark: (patch: Partial<WatermarkConfig>) => void;
 
   setRawHtml: (html: string) => void;
   markDirty: () => void;
   markSaving: () => void;
   markSaved: () => void;
+  restoreSession: (state: {
+    dirHandle: FileSystemDirectoryHandle | null;
+    mode: 'folder' | 'file';
+    sourceFileName: string;
+    deckFileName: string;
+    rawHtml: string;
+    headHtml: string;
+    meta: DeckMeta;
+    slides: SlideState[];
+    currentSlideId: string | null;
+    watermark: WatermarkConfig;
+    isDirty: boolean;
+    lastSavedAt: number | null;
+  }) => void;
 }
 
-/** Set attributes on the root <section> of a serialized slide html string. */
+/** Set attributes on the root slide element of a serialized slide html string. */
 function setRootAttrs(html: string, attrs: Record<string, string>): string {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const sec = doc.body.firstElementChild;
@@ -121,6 +143,18 @@ function renumber(slides: SlideState[]): SlideState[] {
   });
 }
 
+function withWatermark(slides: SlideState[], config: WatermarkConfig): SlideState[] {
+  return slides.map((sl) => ({
+    ...sl,
+    html: applyWatermarkToSlideHtml(sl.html, config),
+    thumbnail: null,
+  }));
+}
+
+function hasHtmlChanges(a: SlideState[], b: SlideState[]): boolean {
+  return a.length !== b.length || a.some((sl, i) => sl.html !== b[i]?.html);
+}
+
 export const useDeckStore = create<DeckStore>((set) => ({
   dirHandle: null,
   fileHandle: null,
@@ -134,6 +168,7 @@ export const useDeckStore = create<DeckStore>((set) => ({
   currentSlideId: null,
   selection: null,
   viewMode: 'visual',
+  watermark: DEFAULT_WATERMARK,
   isDirty: false,
   isSaving: false,
   lastSavedAt: null,
@@ -143,21 +178,68 @@ export const useDeckStore = create<DeckStore>((set) => ({
   openDirectory: (handle, fileName, html, headHtml, meta, slides) => {
     // Derive working-copy filename: foo.html → foo-hds.html
     const copyName = fileName.replace(/\.html$/i, '-hds.html');
+    const watermarkedSlides = withWatermark(slides, DEFAULT_WATERMARK);
     lastEditPush = 0;
-    set({ dirHandle: handle, fileHandle: null, mode: 'folder', sourceFileName: fileName, deckFileName: copyName, rawHtml: html, headHtml, meta, slides, currentSlideId: slides[0]?.id ?? null, isDirty: false, past: [], future: [] });
+    set({
+      dirHandle: handle,
+      fileHandle: null,
+      mode: 'folder',
+      sourceFileName: fileName,
+      deckFileName: copyName,
+      rawHtml: html,
+      headHtml,
+      meta,
+      slides: watermarkedSlides,
+      currentSlideId: watermarkedSlides[0]?.id ?? null,
+      selection: null,
+      watermark: DEFAULT_WATERMARK,
+      isDirty: hasHtmlChanges(slides, watermarkedSlides),
+      past: [],
+      future: [],
+    });
   },
 
   openFile: (fileName, html, headHtml, meta, slides) => {
     const copyName = fileName.replace(/\.html?$/i, '-hds.html');
+    const watermarkedSlides = withWatermark(slides, DEFAULT_WATERMARK);
     lastEditPush = 0;
-    set({ dirHandle: null, fileHandle: null, mode: 'file', sourceFileName: fileName, deckFileName: copyName, rawHtml: html, headHtml, meta, slides, currentSlideId: slides[0]?.id ?? null, isDirty: false, past: [], future: [] });
+    set({
+      dirHandle: null,
+      fileHandle: null,
+      mode: 'file',
+      sourceFileName: fileName,
+      deckFileName: copyName,
+      rawHtml: html,
+      headHtml,
+      meta,
+      slides: watermarkedSlides,
+      currentSlideId: watermarkedSlides[0]?.id ?? null,
+      selection: null,
+      watermark: DEFAULT_WATERMARK,
+      isDirty: hasHtmlChanges(slides, watermarkedSlides),
+      past: [],
+      future: [],
+    });
   },
 
   setWorkingFileHandle: (fh) => set({ fileHandle: fh }),
 
   applyRestoredDeck: (html, headHtml, meta, slides) => {
     lastEditPush = 0;
-    set({ rawHtml: html, headHtml, meta, slides, currentSlideId: slides[0]?.id ?? null, selection: null, isDirty: true, past: [], future: [] });
+    set((s) => {
+      const watermarkedSlides = withWatermark(slides, s.watermark);
+      return {
+        rawHtml: html,
+        headHtml,
+        meta,
+        slides: watermarkedSlides,
+        currentSlideId: watermarkedSlides[0]?.id ?? null,
+        selection: null,
+        isDirty: true,
+        past: [],
+        future: [],
+      };
+    });
   },
 
   closeDirectory: () =>
@@ -170,8 +252,9 @@ export const useDeckStore = create<DeckStore>((set) => ({
       const now = Date.now();
       const coalesce = now - lastEditPush < COALESCE_MS;
       lastEditPush = now;
+      const nextHtml = applyWatermarkToSlideHtml(html, s.watermark);
       const next = {
-        slides: s.slides.map((sl) => (sl.id === id ? { ...sl, html } : sl)),
+        slides: s.slides.map((sl) => (sl.id === id ? { ...sl, html: nextHtml, thumbnail: null } : sl)),
         isDirty: true,
       };
       // Group rapid edits into one undo step; only the first in a burst pushes.
@@ -192,7 +275,7 @@ export const useDeckStore = create<DeckStore>((set) => ({
         ...src,
         id: newId,
         thumbnail: null,
-        html: setRootAttrs(src.html, { 'data-page-id': newId }),
+        html: applyWatermarkToSlideHtml(setRootAttrs(src.html, { 'data-page-id': newId }), s.watermark),
       };
       const next = [...s.slides.slice(0, idx + 1), clone, ...s.slides.slice(idx + 1)];
       lastEditPush = 0; // structural op: don't coalesce a following text edit into it
@@ -229,11 +312,56 @@ export const useDeckStore = create<DeckStore>((set) => ({
 
   setViewMode: (viewMode) => set({ viewMode }),
 
+  setWatermark: (patch) =>
+    set((s) => {
+      const watermark = normalizeWatermarkConfig({ ...s.watermark, ...patch });
+      if (
+        watermark.text === s.watermark.text &&
+        watermark.mode === s.watermark.mode &&
+        watermark.opacity === s.watermark.opacity
+      ) {
+        return {};
+      }
+      lastEditPush = 0;
+      return {
+        watermark,
+        slides: withWatermark(s.slides, watermark),
+        selection: null,
+        isDirty: true,
+        past: pushPast(s),
+        future: [],
+      };
+    }),
+
   setRawHtml: (rawHtml) => set({ rawHtml }),
 
   markDirty: () => set({ isDirty: true }),
   markSaving: () => set({ isSaving: true }),
   markSaved: () => set({ isSaving: false, isDirty: false, lastSavedAt: Date.now() }),
+
+  restoreSession: (state) => {
+    lastEditPush = 0;
+    set({
+      dirHandle: state.dirHandle,
+      fileHandle: null,
+      mode: state.mode,
+      sourceFileName: state.sourceFileName,
+      deckFileName: state.deckFileName,
+      rawHtml: state.rawHtml,
+      headHtml: state.headHtml,
+      meta: state.meta,
+      slides: state.slides,
+      currentSlideId: state.currentSlideId,
+      selection: null,
+      viewMode: 'visual',
+      watermark: normalizeWatermarkConfig(state.watermark),
+      isDirty: state.isDirty,
+      isSaving: false,
+      lastSavedAt: state.lastSavedAt,
+      past: [],
+      future: [],
+    });
+  },
 
   undo: () =>
     set((s) => {

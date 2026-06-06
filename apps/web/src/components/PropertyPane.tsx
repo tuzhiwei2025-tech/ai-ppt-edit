@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeckStore } from '../store/deckStore.js';
-import type { PatchOp } from '@ai-ppt-edit/protocol';
+import type { LayerRoleSetting, PatchOp } from '@ai-ppt-edit/protocol';
+import type { WatermarkMode } from '../lib/watermark.js';
 
 type ZOrderOp = 'front' | 'back' | 'forward' | 'backward';
 
@@ -11,6 +12,8 @@ interface PropertyPaneProps {
   onDelete?: (selector: string) => void;
   /** Re-stack the selected free element relative to its peers. */
   onZOrder?: (selector: string, op: ZOrderOp) => void;
+  /** Set the selected free element's manual/automatic layer role. */
+  onSetLayerRole?: (selector: string, role: LayerRoleSetting) => void;
   /** Floating inspector variant: rounded glass card with slide-in animation. */
   floating?: boolean;
   /** When provided (floating), shows a close (×) button in the header. */
@@ -24,9 +27,11 @@ const TEXT_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'li'
 const TEXT_COLORS = ['#e6edf3', '#ffffff', '#0d1117', '#1d4ed8', '#475569', '#ef4444', '#22c55e', '#f59e0b', '#bc8cff', '#f78166'];
 const BG_COLORS = ['transparent', '#0d1117', '#161b22', '#ffffff', '#eff6ff', '#fef9c3', '#fce7f3'];
 
-export function PropertyPane({ onPatch, onDelete, onZOrder, floating = false, onClose, mode = 'edit' }: PropertyPaneProps) {
+export function PropertyPane({ onPatch, onDelete, onZOrder, onSetLayerRole, floating = false, onClose, mode = 'edit' }: PropertyPaneProps) {
   const { t } = useTranslation('editor');
   const selection = useDeckStore((s) => s.selection);
+  const watermark = useDeckStore((s) => s.watermark);
+  const setWatermark = useDeckStore((s) => s.setWatermark);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [fontSize, setFontSize] = useState(16);
@@ -49,9 +54,55 @@ export function PropertyPane({ onPatch, onDelete, onZOrder, floating = false, on
     setTextValue(snapText);
   }
 
+  const paneWidthClass = floating ? 'w-full' : 'w-[300px]';
+
+  const commitWatermarkText = (value: string) => {
+    if (value.trim() !== watermark.text) setWatermark({ text: value });
+  };
+
+  const watermarkControls = (
+    <section>
+      <div className="hds-inspector-label">{t('watermark.label')}</div>
+      <div className="hds-inspector-section">
+        <div className="hds-inspector-block">
+          <span className="hds-block-label">{t('watermark.text')}</span>
+          <input
+            key={watermark.text}
+            defaultValue={watermark.text}
+            className="hds-input"
+            onBlur={(e) => commitWatermarkText(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              } else if (e.key === 'Escape') {
+                e.currentTarget.value = watermark.text;
+                e.currentTarget.blur();
+              }
+            }}
+          />
+        </div>
+        <div className="hds-inspector-block">
+          <span className="hds-block-label">{t('watermark.mode')}</span>
+          <div className="hds-segmented is-fill">
+            {(['center', 'tiled'] as WatermarkMode[]).map((wmMode) => (
+              <button
+                key={wmMode}
+                type="button"
+                className={`hds-segment ${watermark.mode === wmMode ? 'is-active' : ''}`}
+                onClick={() => setWatermark({ mode: wmMode })}
+              >
+                {t(`watermark.${wmMode}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
   if (!selection) {
     return (
-      <aside className={`hds-panel w-[300px] shrink-0 p-6 flex flex-col items-center justify-center gap-3 text-center ${floating ? 'hds-floating-inspector h-full' : ''}`}>
+      <aside className={`hds-panel ${paneWidthClass} shrink-0 p-6 flex flex-col items-center justify-center gap-3 text-center ${floating ? 'hds-floating-inspector h-full' : ''}`}>
         <div className="w-12 h-12 rounded-2xl bg-[var(--control-bg)] border border-[var(--separator)] flex items-center justify-center">
           <svg className="w-6 h-6 text-[var(--tertiary-label)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
@@ -85,6 +136,7 @@ export function PropertyPane({ onPatch, onDelete, onZOrder, floating = false, on
   const layer = selection.layer;
   const atTop = layer ? layer.index >= layer.count : false;
   const atBottom = layer ? layer.index <= 1 : false;
+  const layerRoleValue: LayerRoleSetting = layer?.roleSource === 'manual' ? layer.role : 'auto';
 
   const commitFontSize = (n: number) => {
     if (!isNaN(n) && n > 0) {
@@ -117,10 +169,10 @@ export function PropertyPane({ onPatch, onDelete, onZOrder, floating = false, on
   })();
 
   return (
-    <aside className={`hds-panel w-[300px] shrink-0 overflow-y-auto flex flex-col ${floating ? 'hds-floating-inspector h-full' : ''}`}>
+    <aside className={`hds-panel ${paneWidthClass} shrink-0 overflow-y-auto flex flex-col ${floating ? 'hds-floating-inspector h-full' : ''}`}>
       {/* Header: tag chip + selector path */}
       <div className={`px-4 py-3 border-b border-[var(--separator)] flex items-center gap-2 sticky top-0 z-10 backdrop-blur ${floating ? 'bg-[rgba(28,29,33,0.82)]' : 'bg-[var(--vibrancy-panel)]'}`}>
-        <code className="text-[11px] bg-[var(--cobalt-lt)] text-[var(--system-blue)] px-2 py-0.5 rounded-md font-mono font-medium shrink-0">
+        <code className="shrink-0 rounded-md border border-emerald-300/35 bg-[#0d2a19] px-2 py-0.5 font-mono text-[11px] font-semibold text-emerald-100 shadow-[0_1px_0_rgba(255,255,255,0.08)_inset]">
           {`<${tagName}>`}
         </code>
         <span className="text-[10px] text-[var(--tertiary-label)] truncate font-mono flex-1 min-w-0" title={selector}>{selector}</span>
@@ -137,6 +189,7 @@ export function PropertyPane({ onPatch, onDelete, onZOrder, floating = false, on
       </div>
 
       <div className="flex flex-col gap-5 p-4">
+        {watermarkControls}
 
         {/* ── Freeform transform (drag mode) ───────────── */}
         {mode === 'drag' && (
@@ -160,10 +213,30 @@ export function PropertyPane({ onPatch, onDelete, onZOrder, floating = false, on
                 <div className="hds-layer-head">
                   <span className="hds-layer-title">{t('inspector.layerLabel')}</span>
                   {layer ? (
-                    <span className="hds-layer-readout">{t('inspector.layerPosition', { index: layer.index, count: layer.count })}</span>
+                    <span className="hds-layer-readout">
+                      {t('inspector.layerPosition', {
+                        index: layer.index,
+                        count: layer.count,
+                        role: t(`inspector.layerRoles.${layer.role}`),
+                      })}
+                    </span>
                   ) : (
                     <span className="hds-layer-hint-inline">{t('inspector.layerHint')}</span>
                   )}
+                </div>
+                <div className="hds-layer-role-row">
+                  <span>{t('inspector.layerRole')}</span>
+                  <select
+                    className="hds-input"
+                    value={layerRoleValue}
+                    disabled={!layer || !onSetLayerRole}
+                    onChange={(e) => onSetLayerRole?.(selector!, e.target.value as LayerRoleSetting)}
+                  >
+                    <option value="auto">{t('inspector.layerRoles.auto')}</option>
+                    <option value="background">{t('inspector.layerRoles.background')}</option>
+                    <option value="content">{t('inspector.layerRoles.content')}</option>
+                    <option value="foreground">{t('inspector.layerRoles.foreground')}</option>
+                  </select>
                 </div>
                 <div className="hds-layer-grid">
                   <button type="button" className="hds-xform-btn" disabled={atTop} title={t('inspector.bringToFront')} onClick={() => zOrder('front')}>
